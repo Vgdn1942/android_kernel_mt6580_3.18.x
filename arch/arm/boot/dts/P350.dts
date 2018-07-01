@@ -70,7 +70,7 @@
 	led@6 {
 		compatible = "mediatek,lcd-backlight";
 		led_mode = <1>;
-		data = <1>;
+		data = <3>;
 		pwm_config = <1 1 0 0 0>;
 	};
 	vibrator0:vibrator@0 {
