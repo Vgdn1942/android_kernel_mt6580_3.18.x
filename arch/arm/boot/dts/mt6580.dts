@@ -773,10 +773,16 @@
 			#size-cells = <0>;
 		};
 
-		touch: touch@0 {
+		touch: touch {
 			compatible = "mediatek,mt6580-touch";
 			vtouch-supply = <&mt_pmic_vgp1_ldo_reg>;
 		};
+
+ 		touch_panel: touch_panel {
+ 			compatible = "mediatek,mt6580-touch_panel";
+			vtouch-supply = <&mt_pmic_vgp1_ldo_reg>;
+ 		};
+
 		accdet: accdet {
 			compatible = "mediatek,mt6580-accdet";
 		};

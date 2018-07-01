@@ -29,15 +29,19 @@
 /* Pre-defined definition */
 
 #define TPD_KEY_COUNT   4
-#define key_1           {60, 850}
-#define key_2           {180, 850}
-#define key_3           {300, 850}
-#define key_4           {420, 850}
+//#define key_1           120,1250             //auto define  
+//#define key_2           360,1250
+//#define key_3           600,1250
+#define key_4           840,1350
 
-#define TPD_KEYS        {KEY_BACK, KEY_HOME, KEY_MENU, KEY_SEARCH}
-#define TPD_KEYS_DIM    { {key_1, 50, 30}, {key_2, 50, 30}, {key_3, 50, 30}, {key_4, 50, 30} }
+#define key_1           120,1350             //auto define  
+#define key_2           360,1350
+#define key_3           600,1350
 
-#define TOUCH_FILTER 1
+#define TPD_KEYS        {KEY_BACK, KEY_HOMEPAGE, KEY_MENU, KEY_SEARCH}
+#define TPD_KEYS_DIM    {{key_1,20,40},{key_2,20,40},{key_3,20,40},{key_4,20,40}}
+
+#define TOUCH_FILTER 0
 #if TOUCH_FILTER
 #define TPD_FILTER_PARA {1, 146}	/*{enable, pixel density} */
 #endif
@@ -96,7 +100,6 @@ extern unsigned char gtp_default_FW_fl[];
 #define CONFIG_OF_TOUCH
 /***************************PART1:ON/OFF define*******************************/
 #define GTP_HAVE_TOUCH_KEY    0
-
 #define GTP_COMPATIBLE_MODE   1	/* compatible with GT9XXF*/
 #define GTP_ESD_PROTECT       0	/* esd protection with a cycle of 2 seconds*/
 /*#define GUP_USE_HEADER_FILE   0*/
@@ -115,7 +118,7 @@ extern unsigned char gtp_default_FW_fl[];
 #define GTP_SCP_GESTURE_WAKEUP  0	/* Gesture wakeup by SCP */
 #endif
 
-#define GTP_DEBUG_ON          0
+#define GTP_DEBUG_ON          1
 #define GTP_DEBUG_ARRAY_ON    0
 #define GTP_DEBUG_FUNC_ON     0
 
@@ -141,7 +144,6 @@ extern void force_reset_guitar(void);
 #define GTP_INT_TRIGGER  1
 #endif
 #define GTP_MAX_TOUCH      5
-#define GTP_ESD_CHECK_CIRCLE  2000
 
 #define VELOCITY_CUSTOM
 #define TPD_VELOCITY_CUSTOM_X 15
@@ -149,7 +151,9 @@ extern void force_reset_guitar(void);
 
 /*STEP_4(optional):If this project have touch key,Set touch key config.*/
 #if GTP_HAVE_TOUCH_KEY
-#define GTP_KEY_TAB	 {KEY_MENU, KEY_HOME, KEY_BACK, KEY_SEND}
+#define GTP_KEY_TAB	 {KEY_MENU, KEY_HOME, KEY_BACK}
+#define GTP_KEY_MAP_ARRAY  {KEY_MENU, KEY_HOME, KEY_BACK, KEY_SEARCH}//////new
+
 #endif
 
 /***************************PART3:OTHER define*********************************/
@@ -229,7 +233,7 @@ typedef enum {
 #define GTP_DMA_MAX_TRANSACTION_LENGTH  255
 #define GTP_DMA_MAX_I2C_TRANSFER_SIZE   (GTP_DMA_MAX_TRANSACTION_LENGTH - GTP_ADDR_LENGTH)
 #define MAX_TRANSACTION_LENGTH        8
-#define TPD_I2C_NUMBER				I2C_CAP_TOUCH_CHANNEL
+#define TPD_I2C_NUMBER		      1
 #define I2C_MASTER_CLOCK              300
 #define MAX_I2C_TRANSFER_SIZE         (MAX_TRANSACTION_LENGTH - GTP_ADDR_LENGTH)
 #define TPD_MAX_RESET_COUNT           3
