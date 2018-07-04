@@ -55,8 +55,8 @@
 #define DRIVER_VERSION          "3.5.2 20150915"
 #define CALI_EVERY_TIME
 #define STK_ALS_FIR
-#define STK_IRS
-#define IR_LED
+//#define STK_IRS
+//#define IR_LED
 
 #include "cust_alsps.h"
 #include <alsps.h>
@@ -131,7 +131,7 @@
 #define STK3310SA_PID		0x17
 #define STK3311SA_PID		0x1E
 #define STK3311WV_PID	0x1D
-#define MTK_AUTO_DETECT_ALSPS
+//#define MTK_AUTO_DETECT_ALSPS
 /*----------------------------------------------------------------------------*/
 static struct i2c_client *stk3x1x_i2c_client;
 /*----------------------------------------------------------------------------*/
@@ -243,10 +243,12 @@ union stk_ges_operation stk_ges_op[10] = {
 
 #ifdef MTK_AUTO_DETECT_ALSPS
 #ifdef CONFIG_OF
+#if 0
 static const struct of_device_id stk3x1x_of_match[] = {
-	{.compatible = "mediatek,alsps_stk",},
+	{.compatible = "mediatek,stk3x1x",},
 	{},
 };
+#endif
 #endif
 #endif
 
@@ -343,8 +345,10 @@ struct stk3x1x_priv {
 	uint16_t p_wv_r_bd_ratio;
 	uint32_t als_code_last;
 #if defined(CONFIG_OF)
+#if 0
 	struct device_node *irq_node;
 	int irq;
+#endif
 #endif
 };
 /*----------------------------------------------------------------------------*/
@@ -360,7 +364,9 @@ static struct i2c_driver stk3x1x_i2c_driver = {
 	.driver = {
 		   .name = stk3x1x_DEV_NAME,
 #ifdef CONFIG_OF
+#if 0
 		   .of_match_table = stk3x1x_of_match,
+#endif
 #endif
 		   },
 };
@@ -2052,12 +2058,14 @@ void stk3x1x_eint_func(void)
 }
 
 #ifdef CONFIG_OF
+#if 0
 static irqreturn_t stk3x1x_irq_func(int irq, void *desc)
 {
 	disable_irq_nosync(stk3x1x_obj->irq);
 	stk3x1x_eint_func();
 	return IRQ_HANDLED;
 }
+#endif
 #endif
 
 /*----------------------------------------------------------------------------*/

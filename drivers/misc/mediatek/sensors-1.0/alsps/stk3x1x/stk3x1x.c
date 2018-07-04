@@ -217,7 +217,7 @@ typedef enum {
     STK_BIT_PS     = 2,
 } STK_BIT;
 /*----------------------------------------------------------------------------*/
-struct stk3x1x_i2c_addr {    
+struct stk3x1x_i2c_addr {
 /*define a series of i2c slave address*/
     u8  state;      	/* enable/disable state */
     u8  psctrl;     	/* PS control */

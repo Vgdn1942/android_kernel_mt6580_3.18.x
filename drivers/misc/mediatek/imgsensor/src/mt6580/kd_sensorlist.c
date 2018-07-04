@@ -106,6 +106,7 @@ struct regulator *regVCAMD = NULL;
 struct regulator *regVCAMIO = NULL;
 struct regulator *regVCAMAF = NULL;
 struct regulator *regSubVCAMD = NULL;
+struct regulator *regVGP3 = NULL;
 #endif
 #define SENSOR_WR32(addr, data)    mt65xx_reg_sync_writel(data, addr)	/* For 89 Only.   // NEED_TUNING_BY_PROJECT */
 /* #define SENSOR_WR32(addr, data)    iowrite32(data, addr)    // For 89 Only.   // NEED_TUNING_BY_PROJECT */
@@ -1324,11 +1325,12 @@ kdModulePowerOn(CAMERA_DUAL_CAMERA_SENSOR_ENUM socketIdx[KDIMGSENSOR_MAX_INVOKE_
 
 	for (i = KDIMGSENSOR_INVOKE_DRIVER_0; i < KDIMGSENSOR_MAX_INVOKE_DRIVERS; i++) {
 		if (g_bEnableDriver[i]) {
-			/* PK_XLOG_INFO("[%s][%d][%d][%s][%s]\r\n",__FUNCTION__,g_bEnableDriver[i],socketIdx[i],sensorNameStr[i],mode_name); */
+			PK_ERR("[%s][%d][%d][%s][%s]\r\n",__FUNCTION__,g_bEnableDriver[i],socketIdx[i],sensorNameStr[i],mode_name);
 #ifndef CONFIG_FPGA_EARLY_PORTING
 			ret = _kdCISModulePowerOn(socketIdx[i], sensorNameStr[i], On, mode_name);
 #endif
 			if (ERROR_NONE != ret) {
+				PK_ERR("ERROR moduleon[%s][%d][%d][%s][%s]\r\n",__FUNCTION__,g_bEnableDriver[i],socketIdx[i],sensorNameStr[i],mode_name);
 				PK_ERR("[%s]", __func__);
 				return ret;
 			}
@@ -3048,6 +3050,9 @@ bool Get_Cam_Regulator(void)
 				if (regVCAMAF == NULL) {
 					regVCAMAF = regulator_get(sensor_device, "vcamaf");
 				}
+				if (regVGP3 == NULL) {
+					regVGP3 = regulator_get(sensor_device, "vgp3"); //stas
+				}
 			} else {
 				/* backup original dev.of_node */
 				kd_node = sensor_device->of_node;
@@ -3074,6 +3079,9 @@ bool Get_Cam_Regulator(void)
 				}
 				if (regVCAMAF == NULL) {
 						regVCAMAF = regulator_get(sensor_device, "vcamaf");
+				}
+				if (regVGP3 == NULL) {
+						regVGP3 = regulator_get(sensor_device, "vgp3"); //stas
 				}
 				/* restore original dev.of_node */
 				sensor_device->of_node = kd_node;
@@ -3103,6 +3111,8 @@ bool _hwPowerOn(KD_REGULATOR_TYPE_T type, int powerVolt)
 		reg = regVCAMIO;
 	} else if (type == VCAMAF) {
 		reg = regVCAMAF;
+	} else if (type == VGP3) {
+        reg = regVGP3; //stas
 	} else
 		return ret;
 
@@ -3140,6 +3150,8 @@ bool _hwPowerDown(KD_REGULATOR_TYPE_T type)
 		reg = regVCAMIO;
 	} else if (type == VCAMAF) {
 		reg = regVCAMAF;
+	} else if (type == VGP3) {
+        reg = regVGP3; //stas
 	} else
 		return ret;
 
