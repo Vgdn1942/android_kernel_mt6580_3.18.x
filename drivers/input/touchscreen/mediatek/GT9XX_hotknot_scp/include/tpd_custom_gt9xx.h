@@ -28,7 +28,7 @@
 
 /* Pre-defined definition */
 
-#define TPD_KEY_COUNT   4
+#define TPD_KEY_COUNT   0
 //#define key_1           120,1250             //auto define  
 //#define key_2           360,1250
 //#define key_3           600,1250
@@ -118,7 +118,7 @@ extern unsigned char gtp_default_FW_fl[];
 #define GTP_SCP_GESTURE_WAKEUP  0	/* Gesture wakeup by SCP */
 #endif
 
-#define GTP_DEBUG_ON          1
+#define GTP_DEBUG_ON          0
 #define GTP_DEBUG_ARRAY_ON    0
 #define GTP_DEBUG_FUNC_ON     0
 
