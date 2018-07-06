@@ -785,21 +785,6 @@
 
 		accdet: accdet {
 			compatible = "mediatek,mt6580-accdet";
-			interrupt-parent = <&eintc>;
-			interrupts = <3 IRQ_TYPE_LEVEL_LOW>;
-			debounce = <3 256000>;
-			status = "okay";
-			accdet-mic-vol = <7>;
-			headset-mode-setting = <0x500 0x200 0x1 0x1f0 0x800 0x800 0x20>;
-			accdet-plugout-debounce = <20>;
-			accdet-mic-mode = <1>;
-			/*0--MD_MAX--UP_MAX--DW_MAX*/
-			headset-three-key-threshold = <0 90 240 500>;
-			/*0--MD_MAX--VOICE_MAX--UP_MAX--DW_MAX*/
-			headset-four-key-threshold = <0 60 126 201 450>;
-			pinctrl-names = "default", "state_eint_as_int";
-			pinctrl-0 = <&ACCDET_pins_default>;
-			pinctrl-1 = <&ACCDET_pins_eint_as_int>;
 		};
 
 		gse_1: gse_1 {
@@ -1285,6 +1270,8 @@
 			vcamaf-supply = <&mt_pmic_vcamaf_ldo_reg>;
 			vcamio-supply = <&mt_pmic_vcamio_ldo_reg>;
 			vgp3-supply = <&mt_pmic_vgp3_ldo_reg>;
+			vcamd_main2-supply = <&mt_pmic_vgp3_ldo_reg>;
+			vcamd_sub-supply = <&mt_pmic_vgp3_ldo_reg>;
 
 		};
 		kd_camera_hw2:kd_camera_hw2@15008000 {
