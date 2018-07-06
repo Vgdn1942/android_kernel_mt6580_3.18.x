@@ -18,73 +18,53 @@
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 
-&nfc {
-	interrupt-parent = <&eintc>;
-	interrupts = <2 IRQ_TYPE_LEVEL_HIGH>;
-	debounce = <2 0>;
-	status = "okay";
-};
-
 &eintc {
-	IRQ_NFC@2 {
-		compatible = "mediatek, IRQ_NFC-eint";
-		interrupt-parent = <&eintc>;
-		interrupts = <2 4>;
-		debounce = <2 0>;
-	};
 
-	MSDC1_INS@5 {
-		compatible = "mediatek, MSDC1_INS-eint";
-		interrupt-parent = <&eintc>;
-		interrupts = <5 8>;
-		debounce = <5 1000>;
-	};
-
-	ACCDET@6 {
-		compatible = "mediatek, ACCDET-eint";
-		interrupt-parent = <&eintc>;
-		interrupts = <6 8>;
-		debounce = <6 256000>;
-	};
-
-	TOUCH_PANEL@10 {
-		compatible = "mediatek, TOUCH_PANEL-eint";
-		interrupt-parent = <&eintc>;
-		interrupts = <10 2>;
-		debounce = <10 0>;
-	};
-
-	ALS@65 {
-		compatible = "mediatek, ALS-eint";
-		interrupt-parent = <&eintc>;
-		interrupts = <65 8>;
-		debounce = <65 0>;
-	};
-
-	GSE_1@66 {
+	GSE_1@1 {
 		compatible = "mediatek, GSE_1-eint";
 		interrupt-parent = <&eintc>;
-		interrupts = <66 8>;
-		debounce = <66 0>;
+		interrupts = <1 IRQ_TYPE_LEVEL_LOW>;
+		debounce = <1 0>;
 	};
 
-	GYRO@67 {
+	ACCDET@3 {
+		compatible = "mediatek, ACCDET-eint";
+		interrupt-parent = <&eintc>;
+		interrupts = <3 IRQ_TYPE_LEVEL_LOW>;
+		debounce = <3 256000>;
+	};
+
+	TOUCH@5 {
+		compatible = "mediatek, TOUCH-eint";
+		interrupt-parent = <&eintc>;
+		interrupts = <5 IRQ_TYPE_EDGE_FALLING>;
+		debounce = <5 0>;
+	};
+
+	ALS@6 {
+		compatible = "mediatek, ALS-eint";
+		interrupt-parent = <&eintc>;
+		interrupts = <6 IRQ_TYPE_LEVEL_LOW>;
+		debounce = <6 0>;
+	};
+
+	GYRO@9 {
 		compatible = "mediatek, GYRO-eint";
 		interrupt-parent = <&eintc>;
-		interrupts = <67 8>;
-		debounce = <67 0>;
+		interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
+		debounce = <9 0>;
 	};
 
-	EXT_BUCK_OC@78 {
-		compatible = "mediatek, EXT_BUCK_OC-eint";
+	DSI_TE@16 {
+		compatible = "mediatek, DSI_TE-eint";
 		interrupt-parent = <&eintc>;
-		interrupts = <78 4>;
-		debounce = <78 0>;
+		interrupts = <68 IRQ_TYPE_EDGE_RISING>;
+		debounce = <68 0>;
 	};
 
 };
 &touch {
 	interrupt-parent = <&eintc>;
-	interrupts = <10 2>;
-	debounce = <10 0>;
+	interrupts = <5 IRQ_TYPE_EDGE_FALLING>;
+	debounce = <5 0>;
 };
