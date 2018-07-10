@@ -9,6 +9,7 @@
 #include <dt-bindings/mmc/mt6580-msdc.h>
 #else
 #include "mt6580.dts"
+#include <P350/cust.dtsi>
 #endif
 
 /* chosen */
@@ -312,7 +313,7 @@
 	/*0--MD_MAX--UP_MAX--DW_MAX*/
 	headset-three-key-threshold = <0 90 240 500>;
 	/*0--MD_MAX--VOICE_MAX--UP_MAX--DW_MAX*/
-	headset-four-key-threshold = <0 59 123 195 450>;
+	headset-four-key-threshold = <0 60 126 201 450>;
 	/* ACCDET GPIO standardization ACC mode use */
 	pinctrl-names = "default", "state_eint_as_int";
 	pinctrl-0 = <&ACCDET_pins_default>;
@@ -331,7 +332,6 @@
 	};
 };
 /*ACCDET END*/
-
 /* TOUCH GPIO standardization */
 &touch {
 	tpd-resolution = <720 1280>;
@@ -716,4 +716,5 @@
 
 };
 /* CONSYS end */
+
 /*End of this file, DO NOT ADD ANYTHING HERE*/
