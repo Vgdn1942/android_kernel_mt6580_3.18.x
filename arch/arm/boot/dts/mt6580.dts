@@ -64,7 +64,7 @@
 				reg = <0x11130000 0x10000/*MSDC1_BASE*/
 					0x10001e84 0x2>;/*FPGA PWR_GPIO,PWR_GPIO_EO*/
 				interrupts = <GIC_SPI 39 IRQ_TYPE_LEVEL_LOW>;
-				cd-gpios = <&pio 3 0>;
+				cd-gpios = <&pio 7 0>;
 				status = "disabled";
 				/* peter check when rainier ccf ready
 				clocks = <&perisys PERI_MSDC30_1>;

@@ -151,7 +151,7 @@
 	register_setting = <&mmc1_register_setting_default>;
 	host_function = /bits/ 8 <MSDC_SD>;
 	cd_level = /bits/ 8 <MSDC_CD_HIGH>;
-	cd-gpios = <&pio 3 0>;
+	cd-gpios = <&pio 7 0>;
 	status = "okay";
 };
 
