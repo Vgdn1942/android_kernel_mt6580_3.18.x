@@ -15,7 +15,7 @@
 #include <dt-bindings/interrupt-controller/irq.h>
 #include "mt6580-pinfunc.h"
 #include <dt-bindings/mmc/mt6580-msdc.h>
-/* #include <generated/autoconf.h> */
+#include <generated/autoconf.h>
 
 #ifdef CONFIG_MTK_DTBO_FEATURE
 /dts-v1/;
@@ -64,12 +64,16 @@
 				reg = <0x11130000 0x10000/*MSDC1_BASE*/
 					0x10001e84 0x2>;/*FPGA PWR_GPIO,PWR_GPIO_EO*/
 				interrupts = <GIC_SPI 39 IRQ_TYPE_LEVEL_LOW>;
+				cd-gpios = <&pio 3 0>;
 				status = "disabled";
 				/* peter check when rainier ccf ready
 				clocks = <&perisys PERI_MSDC30_1>;
 				clock-names="MSDC1-CLOCK"; */
 			};
 
+			msdc1_ins: default {
+				compatible = "mediatek,msdc1_ins-eint";
+			};
 		};
 
 		cpus {
@@ -1540,12 +1544,6 @@
 				regulator-max-microvolt = <3000000>;
 				regulator-enable-ramp-delay = <264>;
 			};
-			mt_pmic_vgp3_ldo_reg: ldo_vgp3 {
-				regulator-name = "vgp3";
-				regulator-min-microvolt = <1200000>;
-				regulator-max-microvolt = <1800000>;
-				regulator-enable-ramp-delay = <264>;
-			};
 			mt_pmic_vemc_3v3_ldo_reg: ldo_vemc_3v3 {
 				regulator-name = "vemc_3v3";
 				regulator-min-microvolt = <3000000>;
@@ -1615,6 +1613,12 @@
 				regulator-max-microvolt = <1800000>;
 				regulator-enable-ramp-delay = <220>;
 			};
+			mt_pmic_vgp3_ldo_reg: ldo_vgp3 {
+				regulator-name = "vgp3";
+				regulator-min-microvolt = <1200000>;
+				regulator-max-microvolt = <1800000>;
+				regulator-enable-ramp-delay = <264>;
+			};
 			mt_pmic_vcn_1v8_ldo_reg: ldo_vcn_1v8 {
 			regulator-name = "vcn_1v8";
 				regulator-min-microvolt = <1800000>;
@@ -1640,7 +1644,6 @@
 			vusb-supply = <&mt_pmic_vusb_ldo_reg>;
 			vgp1-supply = <&mt_pmic_vgp1_ldo_reg>;
 			vgp2-supply = <&mt_pmic_vgp2_ldo_reg>;
-			vgp3-supply = <&mt_pmic_vgp3_ldo_reg>;
 			vemc_3v3-supply = <&mt_pmic_vemc_3v3_ldo_reg>;
 			vcamaf-supply = <&mt_pmic_vcamaf_ldo_reg>;
 			vmc-supply = <&mt_pmic_vmc_ldo_reg>;
@@ -1652,6 +1655,7 @@
 			vio18-supply = <&mt_pmic_vio18_ldo_reg>;
 			vcamd-supply = <&mt_pmic_vcamd_ldo_reg>;
 			vcamio-supply = <&mt_pmic_vcamio_ldo_reg>;
+			vgp3-supply = <&mt_pmic_vgp3_ldo_reg>;
 			vcn_1v8-supply = <&mt_pmic_vcn_1v8_ldo_reg>;
 		};/* End of regulators_supply */
 	};/* End of mt_pmic_regulator */
@@ -1723,7 +1727,6 @@
 	};
 };
 
-#include <P350/cust.dtsi>
 #include <trusty.dtsi>
 
 &eintc {
