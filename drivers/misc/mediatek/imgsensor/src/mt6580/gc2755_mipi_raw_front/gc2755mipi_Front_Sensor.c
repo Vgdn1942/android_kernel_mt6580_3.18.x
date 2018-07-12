@@ -34,7 +34,7 @@
 #include "kd_imgsensor_define.h"
 #include "kd_imgsensor_errcode.h"
 
-#include "gc2755mipi_Sensor.h"
+#include "GC2755mipi_Front_Sensor.h"
 
 /****************************Modify Following Strings for Debug****************************/
 #define PFX "GC2755_camera_sensor"
@@ -48,7 +48,7 @@ static DEFINE_SPINLOCK(imgsensor_drv_lock);
 kal_bool GC2755DuringTestPattern = KAL_FALSE;
 
 static imgsensor_info_struct imgsensor_info = {
-    .sensor_id = GC2755_SENSOR_ID,        //record sensor id defined in Kd_imgsensor.h
+    .sensor_id = GC2755_FRONT_SENSOR_ID,        //record sensor id defined in Kd_imgsensor.h
 
     .checksum_value = 0xc04401a5,        //checksum value for Camera Auto Test
 
@@ -1356,7 +1356,7 @@ static SENSOR_FUNCTION_STRUCT sensor_func = {
     close
 };
 
-UINT32 GC2755_MIPI_RAW_SensorInit(PSENSOR_FUNCTION_STRUCT *pfFunc)
+UINT32 GC2755_MIPI_RAW_Front_SensorInit(PSENSOR_FUNCTION_STRUCT *pfFunc)
 {
     /* To Do : Check Sensor status here */
     if (pfFunc!=NULL)

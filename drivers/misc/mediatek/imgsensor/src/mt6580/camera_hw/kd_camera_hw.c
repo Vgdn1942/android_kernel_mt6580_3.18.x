@@ -308,7 +308,8 @@ int kdCISModulePowerOn(CAMERA_DUAL_CAMERA_SENSOR_ENUM SensorIdx, char *currSenso
             if (GPIO_CAMERA_INVALID != pinSet[pinSetIdx][IDX_PS_CMRST])
                 mtkcam_gpio_set(pinSetIdx, CAMRST,
                         pinSet[pinSetIdx][IDX_PS_CMRST + IDX_PS_ON]);
-        } else if (currSensorName && (0 == strcmp(SENSOR_DRVNAME_GC2755_MIPI_RAW, currSensorName))) {
+        } else if ((currSensorName && (0 == strcmp(SENSOR_DRVNAME_GC2755_MIPI_RAW, currSensorName)))
+                    || (currSensorName && (0 == strcmp(SENSOR_DRVNAME_GC2755_MIPI_RAW_FRONT, currSensorName)))) {
             /* First Power Pin low and Reset Pin Low */
             if (GPIO_CAMERA_INVALID != pinSet[pinSetIdx][IDX_PS_CMPDN])
                 mtkcam_gpio_set(pinSetIdx, CAMPDN,
@@ -316,7 +317,7 @@ int kdCISModulePowerOn(CAMERA_DUAL_CAMERA_SENSOR_ENUM SensorIdx, char *currSenso
             if (GPIO_CAMERA_INVALID != pinSet[pinSetIdx][IDX_PS_CMRST])
                 mtkcam_gpio_set(pinSetIdx, CAMRST,
                         pinSet[pinSetIdx][IDX_PS_CMRST + IDX_PS_OFF]);
-            mdelay(50);  
+            mdelay(50);
             /* VCAM_IO */
             if (TRUE != _hwPowerOn(VCAMIO, VOL_1800)) {
                 PK_ERR
@@ -326,10 +327,10 @@ int kdCISModulePowerOn(CAMERA_DUAL_CAMERA_SENSOR_ENUM SensorIdx, char *currSenso
             }
             mdelay(10);
             /* VCAM_D_SUB */
-            if (TRUE != _hwPowerOn(SUB_VCAMD, VOL_1800)) {
+            if (TRUE != _hwPowerOn(VCAMD_SUB, VOL_1800)) {
                 PK_ERR
                     ("[CAMERA SENSOR] Fail to enable analog power (SUB_VCAM_D), power id = %d\n",
-                     SUB_VCAMD);
+                     VCAMD_SUB);
                 goto _kdCISModulePowerOn_exit_;
             }
             mdelay(10);
@@ -445,12 +446,13 @@ int kdCISModulePowerOn(CAMERA_DUAL_CAMERA_SENSOR_ENUM SensorIdx, char *currSenso
                                      VCAMAF);
                                 goto _kdCISModulePowerOn_exit_;
                             }
-                    } else if (currSensorName && (0 == strcmp(SENSOR_DRVNAME_GC2755_MIPI_RAW, currSensorName))) {
+                    } else if ((currSensorName && (0 == strcmp(SENSOR_DRVNAME_GC2755_MIPI_RAW, currSensorName)))
+                                || (currSensorName && (0 == strcmp(SENSOR_DRVNAME_GC2755_MIPI_RAW_FRONT, currSensorName)))) {
                             /* VCAM_D_SUB */
-                            if (TRUE != _hwPowerDown(SUB_VCAMD)) {
+                            if (TRUE != _hwPowerDown(VCAMD_SUB)) {
                                 PK_DBG
                                     ("[CAMERA SENSOR] Fail to OFF analog power (SUB_VCAM_D),power id= (%d)\n",
-                                     SUB_VCAMD);
+                                     VCAMD_SUB);
                                 goto _kdCISModulePowerOn_exit_;
                             }
                             /* VCAM_A */
@@ -469,10 +471,10 @@ int kdCISModulePowerOn(CAMERA_DUAL_CAMERA_SENSOR_ENUM SensorIdx, char *currSenso
                             }
                     } else {
                             /* VCAM_D_SUB */
-                            if (TRUE != _hwPowerDown(SUB_VCAMD)) {
+                            if (TRUE != _hwPowerDown(VCAMD_SUB)) {
                                 PK_DBG
                                     ("[CAMERA SENSOR] Fail to OFF analog power (SUB_VCAM_D),power id= (%d)\n",
-                                     SUB_VCAMD);
+                                     VCAMD_SUB);
                                 goto _kdCISModulePowerOn_exit_;
                             }
                             /* VCAM_D */

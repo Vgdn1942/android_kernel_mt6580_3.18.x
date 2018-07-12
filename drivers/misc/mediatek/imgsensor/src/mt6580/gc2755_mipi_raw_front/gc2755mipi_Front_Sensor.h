@@ -2,7 +2,7 @@
  *
  * Filename:
  * ---------
- *     GC2755mipi_Sensor.h
+ *     GC2755mipi_Front_Sensor.h
  *
  * Project:
  * --------
@@ -13,8 +13,8 @@
  *     CMOS sensor header file
  *
  ****************************************************************************/
-#ifndef _GC2755MIPI_SENSOR_H
-#define _GC2755MIPI_SENSOR_H
+#ifndef _GC2755MIPI_FRONT_SENSOR_H
+#define _GC2755MIPI_FRONT_SENSOR_H
 
 
 typedef enum{
