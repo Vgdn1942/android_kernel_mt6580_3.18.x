@@ -79,7 +79,8 @@ typedef enum KD_REGULATOR_TYPE_TAG {
 	VCAMD,
 	VCAMIO,
 	VCAMAF,
-	SUB_VCAMD,
+ 	VCAMD_SUB,
+	VGP3,
 } KD_REGULATOR_TYPE_T;
 
 typedef enum {
