@@ -15,7 +15,7 @@ This is 3.18.x MT6580 kernel source ported to be used on DEXP Ixion P350.
 | Lens #2 | `BU6424AF (i2c 0-0019)` | Yes | Unknow |
 | RAM | `1 GB LPDDR3_1066` | - | Yes |
 | Sound | `mtsndcard` | - | Yes |
-| Accdet | `mt6580-accdet` | - | No |
+| Accdet | `mt6580-accdet` | - | Yes |
 | Other | `kd_camera_hw (i2c 0-007f)` | - | Yes |
 
 ## Acknowledgements
