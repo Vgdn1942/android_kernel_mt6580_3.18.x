@@ -105,7 +105,7 @@ static struct i2c_board_info i2c_devs2 __initdata = {
 struct regulator *regVCAMD = NULL;
 struct regulator *regVCAMIO = NULL;
 struct regulator *regVCAMAF = NULL;
-struct regulator *regVCAMD_SUB = NULL;
+struct regulator *regSubVCAMD = NULL;
 #endif
 #define SENSOR_WR32(addr, data)    mt65xx_reg_sync_writel(data, addr)	/* For 89 Only.   // NEED_TUNING_BY_PROJECT */
 /* #define SENSOR_WR32(addr, data)    iowrite32(data, addr)    // For 89 Only.   // NEED_TUNING_BY_PROJECT */
@@ -3049,8 +3049,8 @@ bool Get_Cam_Regulator(void)
 				if (regVCAMAF == NULL) {
 					regVCAMAF = regulator_get(sensor_device, "vcamaf");
 				}
-				if (regVCAMD_SUB == NULL) {
-					regVCAMD_SUB = regulator_get(sensor_device, "vgp3");
+				if (regSubVCAMD == NULL) {
+					regSubVCAMD = regulator_get(sensor_device, "vgp3");
 				}
 			} else {
 				/* backup original dev.of_node */
@@ -3070,8 +3070,8 @@ bool Get_Cam_Regulator(void)
 				if (regVCAMD == NULL) {
 						regVCAMD = regulator_get(sensor_device, "vcamd");
 				}
-				if (regVCAMD_SUB == NULL) {
-						regVCAMD_SUB = regulator_get(sensor_device, "vgp3");
+				if (regSubVCAMD == NULL) {
+						regSubVCAMD = regulator_get(sensor_device, "vgp3");
 				}
 				if (regVCAMIO == NULL) {
 						regVCAMIO = regulator_get(sensor_device, "vcamio");
@@ -3107,8 +3107,8 @@ bool _hwPowerOn(KD_REGULATOR_TYPE_T type, int powerVolt)
 		reg = regVCAMIO;
 	} else if (type == VCAMAF) {
 		reg = regVCAMAF;
-	} else if (type == VCAMD_SUB) {
-		reg = regVCAMD_SUB;
+	} else if (type == SUB_VCAMD) {
+		reg = regSubVCAMD;
 	} else
 		return ret;
 
@@ -3146,8 +3146,8 @@ bool _hwPowerDown(KD_REGULATOR_TYPE_T type)
 		reg = regVCAMIO;
 	} else if (type == VCAMAF) {
 		reg = regVCAMAF;
-	} else if (type == VCAMD_SUB) {
-		reg = regVCAMD_SUB;
+	} else if (type == SUB_VCAMD) {
+		reg = regSubVCAMD;
 	} else
 		return ret;
 

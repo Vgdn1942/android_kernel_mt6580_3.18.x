@@ -26,7 +26,7 @@
 
 
 #define AF_DRVNAME "BU6424AF_DRV"
-#define AF_I2C_SLAVE_ADDR        0x19
+#define AF_I2C_SLAVE_ADDR        0x18
 
 #define AF_DEBUG
 #ifdef AF_DEBUG

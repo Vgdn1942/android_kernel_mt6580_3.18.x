@@ -255,10 +255,5 @@ int BU6424AF_SetI2Cclient(struct i2c_client *pstAF_I2Cclient, spinlock_t *pAF_Sp
 	g_pAF_SpinLock = pAF_SpinLock;
 	g_pAF_Opened = pAF_Opened;
 
-	spin_lock(g_pAF_SpinLock);
-	g_u4CurrPosition = 0;
-	spin_unlock(g_pAF_SpinLock);
-	LOG_INF("reset g_u4CurrPosition as %ld", g_u4CurrPosition);
-
 	return 1;
 }

@@ -118,9 +118,9 @@ typedef struct imgsensor_info_struct {
 //#define IMGSENSOR_READ_ID_2  (0x21)
 
 // add by yfx
-#define GC2755_VALID_PIXEL_NUMS            1920
+#define GC2755_VALID_IXEL_NUMS            1920
 #define GC2755_VALID_LINE_NUMS            1080
-#define GC2755_DEFAULT_DUMMY_PIXEL_NUMS   0x312
+#define GC2755_DEFAULT_DUMMY_PIXEL_NUMS   0x312 
 #define GC2755_DEFAULT_DUMMY_LINE_NUMS    0x49
 
 #define GC2755_INTERNAL_DUMMY_PIXEL_NUMS  0
@@ -139,6 +139,6 @@ typedef struct imgsensor_info_struct {
 
 extern int iReadRegI2C(u8 *a_pSendData , u16 a_sizeSendData, u8 * a_pRecvData, u16 a_sizeRecvData, u16 i2cId);
 extern int iWriteRegI2C(u8 *a_pSendData , u16 a_sizeSendData, u16 i2cId);
-extern int iWriteReg(u16 a_u2Addr , u32 a_u4Data , u32 a_u4Bytes , u16 i2cId);
+extern int iWriteReg(u16 a_u2Addr , u32 a_u4Data , u32 a_u4Bytes , u16 i2cId); 
 
 #endif
