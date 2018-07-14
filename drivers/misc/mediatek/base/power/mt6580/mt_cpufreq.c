@@ -232,7 +232,11 @@ static unsigned int _mt_cpufreq_get_cpu_level(void)
 	unsigned int lv = 0;
 	/* get CPU clock-frequency from DT */
 #ifdef CONFIG_OF
+#ifdef CONFIG_CPU_OC
+	lv = CPU_LEVEL_1;
+#else
 	lv = CPU_LEVEL_0;
+#endif
 #else
 	/* no DT, we should check efuse for CPU speed HW bounding */
 	{
@@ -275,7 +279,11 @@ unsigned int cpu_speed_bounding = _GET_BITS_VAL_(3:0, get_devinfo_with_index(CPU
 #else
 static unsigned int _mt_cpufreq_get_cpu_level(void)
 {
+#ifdef CONFIG_CPU_OC
+	return CPU_LEVEL_1;
+#else
 	return CPU_LEVEL_0;
+#endif
 }
 #endif
 
@@ -640,6 +648,19 @@ static struct mt_cpu_dvfs *id_to_cpu_dvfs(enum mt_cpu_dvfs_id id)
 #define NR_MAX_OPP_TBL  8
 #define NR_MAX_CPU      8
 
+#ifdef CONFIG_CPU_OC
+/* CPU LEVEL 0, 1.5GHz segment */
+static struct mt_cpu_freq_info opp_tbl_e1_0[] = {
+	OP(CPU_DVFS_FREQ0, 131000),
+	OP(CPU_DVFS_FREQ1, 122000),
+	OP(CPU_DVFS_FREQ2, 119000),
+	OP(CPU_DVFS_FREQ3, 115000),
+	OP(CPU_DVFS_FREQ4, 112000),
+	OP(CPU_DVFS_FREQ5, 105000),
+	OP(CPU_DVFS_FREQ6, 105000),
+	OP(CPU_DVFS_FREQ7, 105000),
+};
+#else
 /* CPU LEVEL 0, 1.3GHz segment */
 static struct mt_cpu_freq_info opp_tbl_e1_0[] = {
 	OP(CPU_DVFS_FREQ1, 130625),
@@ -651,6 +672,7 @@ static struct mt_cpu_freq_info opp_tbl_e1_0[] = {
 	OP(CPU_DVFS_FREQ7, 115000),
 	OP(CPU_DVFS_FREQ7, 115000),
 };
+#endif
 
 /* CPU LEVEL 1, 1.5GHz segment */
 static struct mt_cpu_freq_info opp_tbl_e1_1[] = {
@@ -1126,7 +1148,13 @@ unsigned int ckdiv1_mask = _BITMASK_(4:0);
 		cur_volt = p->ops->get_cur_volt(p);
 
 		switch (p->cpu_level) {
+#ifdef CONFIG_CPU_OC
 		case CPU_LEVEL_0:
+			mainpll_volt_idx = 3;
+			break;
+#else
+		case CPU_LEVEL_0:
+#endif
 		case CPU_LEVEL_1:
 			mainpll_volt_idx = 3;
 			break;
