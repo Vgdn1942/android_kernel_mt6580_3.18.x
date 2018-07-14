@@ -99,3 +99,9 @@ config CPU_OC
 	help
 	  Overclock MT6580 to 1.5 GHz
 
+config CPU_UC
+	bool "CPU_UNDERCLOCK"
+	default n
+	help
+	  Underclock MT6580 to 455 MHz
+
