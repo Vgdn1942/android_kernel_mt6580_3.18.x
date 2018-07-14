@@ -103,5 +103,5 @@ config CPU_UC
 	bool "CPU_UNDERCLOCK"
 	default n
 	help
-	  Underclock MT6580 to 455 MHz
+	  Underclock MT6580 to 260 MHz
 

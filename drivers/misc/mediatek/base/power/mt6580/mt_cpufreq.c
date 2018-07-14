@@ -103,7 +103,7 @@
 #define DEFAULT_VOLT_VCORE      (115000)
 
 /* for DVFS OPP table */
-#define CPU_DVFS_FREQ0   (1495000)	/* KHz */
+#define CPU_DVFS_FREQ0   (1508000)	/* KHz */
 #define CPU_DVFS_FREQ1   (1300000)	/* KHz */
 #define CPU_DVFS_FREQ2   (1209000)	/* KHz */
 #define CPU_DVFS_FREQ3   (1105000)	/* KHz */
@@ -113,8 +113,9 @@
 #define CPU_DVFS_FREQ7   (604500) /* KHz */	/* 1.209/2 */
 #ifdef CONFIG_CPU_UC
 #define CPU_DVFS_FREQ8   (455000) /* KHz */	/* 910/2 */
+#define CPU_DVFS_FREQ9   (260000) /* KHz */	/* 520/2 */
 
-#define CPUFREQ_LAST_FREQ_LEVEL    (CPU_DVFS_FREQ8)
+#define CPUFREQ_LAST_FREQ_LEVEL    (CPU_DVFS_FREQ9)
 #else
 #define CPUFREQ_LAST_FREQ_LEVEL    (CPU_DVFS_FREQ7)
 #endif
@@ -666,6 +667,7 @@ static struct mt_cpu_freq_info opp_tbl_e1_0[] = {
 	OP(CPU_DVFS_FREQ7, 105000),
 #ifdef CONFIG_CPU_UC
 	OP(CPU_DVFS_FREQ8, 95000),
+	OP(CPU_DVFS_FREQ9, 95000),
 #endif
 };
 #else
@@ -681,6 +683,7 @@ static struct mt_cpu_freq_info opp_tbl_e1_0[] = {
 	OP(CPU_DVFS_FREQ7, 115000),
 #ifdef CONFIG_CPU_UC
 	OP(CPU_DVFS_FREQ8, 105000),
+	OP(CPU_DVFS_FREQ9, 100000),
 #endif
 };
 #endif
@@ -697,6 +700,7 @@ static struct mt_cpu_freq_info opp_tbl_e1_1[] = {
 	OP(CPU_DVFS_FREQ7, 105000),
 #ifdef CONFIG_CPU_UC
 	OP(CPU_DVFS_FREQ8, 95000),
+	OP(CPU_DVFS_FREQ9, 95000),
 #endif
 };
 
@@ -721,16 +725,18 @@ static struct opp_tbl_info opp_tbls[] = {
 #define PLL_DIV1_1000_FREQ		(1000000)	/* for 1G - low */
 #ifdef CONFIG_CPU_UC
 #define PLL_DIV1_910_FREQ		(910000)	/* for 455MHz */
+#define PLL_DIV1_520_FREQ		(520000)	/* for 260MHz */
 #endif
 #define PLL_DIV2_FREQ			(520000)	/* KHz */
 
-#define DDS_DIV1_1807_FREQ		(0x00116000)	/* 1807MHz */
-#define DDS_DIV1_1508_FREQ		(0x000E8000)	/* 1508MHz */
-#define DDS_DIV1_1495_FREQ		(0x000E6000)	/* 1495MHz */
-#define DDS_DIV1_1209_FREQ		(0x000BA000)	/* 1209MHz */
-#define DDS_DIV1_1001_FREQ		(0x0009A000)	/* 1001MHz */
+#define DDS_DIV1_1807_FREQ		(0x00116000)	/* 1807MHz 278*13/2 */
+#define DDS_DIV1_1508_FREQ		(0x000E8000)	/* 1508MHz 232*13/2 */
+#define DDS_DIV1_1495_FREQ		(0x000E6000)	/* 1495MHz 230*13/2 */
+#define DDS_DIV1_1209_FREQ		(0x000BA000)	/* 1209MHz 186*13/2 */
+#define DDS_DIV1_1001_FREQ		(0x0009A000)	/* 1001MHz 154*13/2 */
 #ifdef CONFIG_CPU_UC
-#define DDS_DIV1_910_FREQ		(0x0008C000)	/* 910MHz */
+#define DDS_DIV1_910_FREQ		(0x0008C000)	/* 910MHz 140*13/2 */
+#define DDS_DIV1_520_FREQ		(0x00050000)	/* 520MHz 80*13/2 */
 #endif
 #define DDS_DIV1_FREQ			(0x0009A000)	/* 1001MHz */
 #define DDS_DIV2_FREQ			(0x010A0000)	/* 520MHz  */
@@ -1164,6 +1170,11 @@ unsigned int ckdiv1_mask = _BITMASK_(4:0);
 #ifdef CONFIG_CPU_UC
 		case CPU_DVFS_FREQ8:
 			dds = _cpu_dds_calc(910000);	/* 455 = 910 / 2 */
+			sel = 10;	/* 2/4 */
+			break;
+
+		case CPU_DVFS_FREQ9:
+			dds = _cpu_dds_calc(520000);	/* 260 = 520 / 2 */
 			sel = 10;	/* 2/4 */
 			break;
 #endif
