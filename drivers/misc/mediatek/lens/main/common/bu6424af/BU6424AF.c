@@ -25,7 +25,7 @@
 #include "lens_info.h"
 
 
-#define AF_DRVNAME "BU6424AF_DRV"
+#define AF_DRVNAME "BU6424AF"
 #define AF_I2C_SLAVE_ADDR        0x19
 
 #define AF_DEBUG
