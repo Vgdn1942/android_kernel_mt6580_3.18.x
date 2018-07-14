@@ -29,21 +29,21 @@
 /* Pre-defined definition */
 
 #define TPD_KEY_COUNT   0
-//#define key_1           120,1250             //auto define  
+//#define key_1           120,1250             //auto define
 //#define key_2           360,1250
 //#define key_3           600,1250
 #define key_4           840,1350
 
-#define key_1           120,1350             //auto define  
+#define key_1           120,1350             //auto define
 #define key_2           360,1350
 #define key_3           600,1350
 
 #define TPD_KEYS        {KEY_BACK, KEY_HOMEPAGE, KEY_MENU, KEY_SEARCH}
 #define TPD_KEYS_DIM    {{key_1,20,40},{key_2,20,40},{key_3,20,40},{key_4,20,40}}
 
-#define TOUCH_FILTER 0
+#define TOUCH_FILTER 1
 #if TOUCH_FILTER
-#define TPD_FILTER_PARA {1, 146}	/*{enable, pixel density} */
+#define TPD_FILTER_PARA {1, 293}	/*{enable, pixel density} */
 #endif
 /*
 struct goodix_ts_data
