@@ -103,22 +103,18 @@
 #define DEFAULT_VOLT_VCORE      (115000)
 
 /* for DVFS OPP table */
-#define CPU_DVFS_FREQ0   (1508000)	/* KHz */
-#define CPU_DVFS_FREQ1   (1300000)	/* KHz */
-#define CPU_DVFS_FREQ2   (1209000)	/* KHz */
-#define CPU_DVFS_FREQ3   (1105000)	/* KHz */
-#define CPU_DVFS_FREQ4   (1001000)	/* KHz */
-#define CPU_DVFS_FREQ5   (903500) /* KHz */	/* 1.807/2 */
-#define CPU_DVFS_FREQ6   (754000) /* KHz */	/* 1.508/2 */
-#define CPU_DVFS_FREQ7   (604500) /* KHz */	/* 1.209/2 */
-#ifdef CONFIG_CPU_UC
-#define CPU_DVFS_FREQ8   (455000) /* KHz */	/* 910/2 */
-#define CPU_DVFS_FREQ9   (260000) /* KHz */	/* 520/2 */
+#define CPU_DVFS_FREQ0   (1612000) /* KHz */
+#define CPU_DVFS_FREQ1   (1456000) /* KHz */
+#define CPU_DVFS_FREQ2   (1300000) /* KHz */
+#define CPU_DVFS_FREQ3   (1157000) /* KHz */
+#define CPU_DVFS_FREQ4   (1001000) /* KHz */
+#define CPU_DVFS_FREQ5   (858000)  /* KHz */
+#define CPU_DVFS_FREQ6   (702000)  /* KHz */
+#define CPU_DVFS_FREQ7   (559000)  /* KHz */
+#define CPU_DVFS_FREQ8   (403000)  /* KHz */
+#define CPU_DVFS_FREQ9   (260000)  /* KHz */
 
 #define CPUFREQ_LAST_FREQ_LEVEL    (CPU_DVFS_FREQ9)
-#else
-#define CPUFREQ_LAST_FREQ_LEVEL    (CPU_DVFS_FREQ7)
-#endif
 
 /*
  * LOG and Test
@@ -717,28 +713,32 @@ static struct opp_tbl_info opp_tbls[] = {
 /* for freq change (PLL/MUX) */
 #define PLL_FREQ_STEP		(13000)	/* KHz */
 
-#define PLL_DIV1_1807_FREQ		(1807000)	/* for 900MHz */
-#define PLL_DIV1_1508_FREQ		(1508000)	/* for 750MHz */
-#define PLL_DIV1_1495_FREQ		(1495000)	/* for 1.5G */
-#define PLL_DIV1_1209_FREQ		(1209000)	/* for 1.2G & 600MHz */
-#define PLL_DIV1_1001_FREQ		(1001000)	/* for 1G - low */
-#define PLL_DIV1_1000_FREQ		(1000000)	/* for 1G - low */
-#ifdef CONFIG_CPU_UC
-#define PLL_DIV1_910_FREQ		(910000)	/* for 455MHz */
+#define PLL_DIV1_1612_FREQ		(1612000)	/* for 1612MHz */
+#define PLL_DIV1_1456_FREQ		(1456000)	/* for 1456MHz */
+#define PLL_DIV1_1300_FREQ		(1300000)	/* for 1300MHz */
+#define PLL_DIV1_1157_FREQ		(1157000)	/* for 1157MHz */
+#define PLL_DIV1_1001_FREQ		(1001000)	/* for 1001MHz */
+#define PLL_DIV1_858_FREQ		(858000)	/* for 858MHz */
+#define PLL_DIV1_702_FREQ		(702000)	/* for 702 */
+#define PLL_DIV1_1118_FREQ		(1118000)	/* for 559MHz */
+#define PLL_DIV1_604_FREQ		(604000)	/* for 302MHz */
 #define PLL_DIV1_520_FREQ		(520000)	/* for 260MHz */
-#endif
+
 #define PLL_DIV2_FREQ			(520000)	/* KHz */
 
-#define DDS_DIV1_1807_FREQ		(0x00116000)	/* 1807MHz 278*13/2 */
-#define DDS_DIV1_1508_FREQ		(0x000E8000)	/* 1508MHz 232*13/2 */
-#define DDS_DIV1_1495_FREQ		(0x000E6000)	/* 1495MHz 230*13/2 */
-#define DDS_DIV1_1209_FREQ		(0x000BA000)	/* 1209MHz 186*13/2 */
+#define DDS_DIV1_1612_FREQ		(0x000F8000)	/* 1612MHz 248*13/2 */
+#define DDS_DIV1_1456_FREQ		(0x000E0000)	/* 1456MHz 224*13/2 */
+#define DDS_DIV1_1300_FREQ		(0x000C8000)	/* 1300MHz 200*13/2 */
+#define DDS_DIV1_1157_FREQ		(0x000B2000)	/* 1157MHz 178*13/2 */
 #define DDS_DIV1_1001_FREQ		(0x0009A000)	/* 1001MHz 154*13/2 */
-#ifdef CONFIG_CPU_UC
-#define DDS_DIV1_910_FREQ		(0x0008C000)	/* 910MHz 140*13/2 */
+#define DDS_DIV1_858_FREQ		(0x00084000)	/* 858MHz 132*13/2 */
+#define DDS_DIV1_702_FREQ		(0x0006C000)	/* 702MHz 108*13/2 */
+#define DDS_DIV1_1118_FREQ		(0x000AC000)	/* 1118MHz 172*13/2 */
+#define DDS_DIV1_604_FREQ		(0x0007C000)	/* 604MHz 124*13/2 */
 #define DDS_DIV1_520_FREQ		(0x00050000)	/* 520MHz 80*13/2 */
-#endif
+
 #define DDS_DIV1_FREQ			(0x0009A000)	/* 1001MHz */
+
 #define DDS_DIV2_FREQ			(0x010A0000)	/* 520MHz  */
 
 #define DDS_DIV1_1000_FREQ		(0x00099D8A)	/* 1000MHz */
@@ -1153,17 +1153,17 @@ unsigned int ckdiv1_mask = _BITMASK_(4:0);
 			break;
 
 		case CPU_DVFS_FREQ5:
-			dds = _cpu_dds_calc(CPU_DVFS_FREQ5);	/* 903= 1807 / 2 */
+			dds = _cpu_dds_calc(CPU_DVFS_FREQ5);	/* 858 */
 			sel = 8;	/* 4/4 */
 			break;
 
 		case CPU_DVFS_FREQ6:
-			dds = _cpu_dds_calc(CPU_DVFS_FREQ6);	/* 754= 1508 / 2 */
+			dds = _cpu_dds_calc(CPU_DVFS_FREQ6);	/* 702 */
 			sel = 8;	/* 4/4 */
 			break;
 
 		case CPU_DVFS_FREQ7:
-			dds = _cpu_dds_calc(1209000);	/* 604 = 1209 / 2 */
+			dds = _cpu_dds_calc(1118000);	/* 559 = 1118 / 2 */
 			sel = 10;	/* 2/4 */
 			break;
 
