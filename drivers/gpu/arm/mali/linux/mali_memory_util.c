@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2015, 2017 ARM Limited. All rights reserved.
+ * Copyright (C) 2013-2015 ARM Limited. All rights reserved.
  * 
  * This program is free software and is provided to you under the terms of the GNU General Public License version 2
  * as published by the Free Software Foundation, and any use by you of this program is subject to the terms of such GNU licence.
@@ -25,7 +25,6 @@
 #include "mali_memory_os_alloc.h"
 #if defined(CONFIG_DMA_SHARED_BUFFER)
 #include "mali_memory_dma_buf.h"
-#include "mali_memory_secure.h"
 #endif
 #if defined(CONFIG_MALI400_UMP)
 #include "mali_memory_ump.h"
@@ -35,8 +34,6 @@
 #include "mali_memory_virtual.h"
 #include "mali_memory_cow.h"
 #include "mali_memory_block_alloc.h"
-#include "mali_memory_swap_alloc.h"
-
 
 
 /**
@@ -68,7 +65,7 @@ static u32 _mali_free_allocation_mem(mali_mem_allocation *mali_alloc)
 		mali_mem_unbind_ump_buf(mem_bkend);
 		atomic_sub(mem_bkend->size / MALI_MMU_PAGE_SIZE, &session->mali_mem_array[mem_bkend->type]);
 #else
-		MALI_DEBUG_PRINT(1, ("UMP not supported\n"));
+		MALI_DEBUG_PRINT(2, ("DMA not supported\n"));
 #endif
 		break;
 	case MALI_MEM_DMA_BUF:
@@ -76,7 +73,7 @@ static u32 _mali_free_allocation_mem(mali_mem_allocation *mali_alloc)
 		mali_mem_unbind_dma_buf(mem_bkend);
 		atomic_sub(mem_bkend->size / MALI_MMU_PAGE_SIZE, &session->mali_mem_array[mem_bkend->type]);
 #else
-		MALI_DEBUG_PRINT(1, ("DMA not supported\n"));
+		MALI_DEBUG_PRINT(2, ("DMA not supported\n"));
 #endif
 		break;
 	case MALI_MEM_EXTERNAL:
@@ -90,33 +87,13 @@ static u32 _mali_free_allocation_mem(mali_mem_allocation *mali_alloc)
 		break;
 
 	case MALI_MEM_COW:
-		if (mem_bkend->flags & MALI_MEM_BACKEND_FLAG_SWAP_COWED) {
-			free_pages_nr = mali_mem_swap_release(mem_bkend, MALI_TRUE);
-		} else {
-			free_pages_nr = mali_mem_cow_release(mem_bkend, MALI_TRUE);
-		}
+		free_pages_nr = mali_mem_cow_release(mem_bkend, MALI_TRUE);
 		atomic_sub(free_pages_nr, &session->mali_mem_allocated_pages);
-		break;
-	case MALI_MEM_SWAP:
-		free_pages_nr = mali_mem_swap_release(mem_bkend, MALI_TRUE);
-		atomic_sub(free_pages_nr, &session->mali_mem_allocated_pages);
-		atomic_sub(free_pages_nr, &session->mali_mem_array[mem_bkend->type]);
-		break;
-	case MALI_MEM_SECURE:
-#if defined(CONFIG_DMA_SHARED_BUFFER)
-		free_pages_nr = mali_mem_secure_release(mem_bkend);
-		atomic_sub(free_pages_nr, &session->mali_mem_allocated_pages);
-#else
-		MALI_DEBUG_PRINT(1, ("DMA not supported for mali secure memory\n"));
-#endif
 		break;
 	default:
 		MALI_DEBUG_PRINT(1, ("mem type %d is not in the mali_mem_type enum.\n", mem_bkend->type));
 		break;
 	}
-
-	if ((NULL != mali_alloc->cpu_mapping.vma) && (mali_alloc == (mali_alloc->cpu_mapping.vma)->vm_private_data))
-		(mali_alloc->cpu_mapping.vma)->vm_private_data = NULL;
 
 	/*Remove backend memory idex */
 	mutex_lock(&mali_idr_mutex);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2015, 2017 ARM Limited. All rights reserved.
+ * Copyright (C) 2010-2015 ARM Limited. All rights reserved.
  * 
  * This program is free software and is provided to you under the terms of the GNU General Public License version 2
  * as published by the Free Software Foundation, and any use by you of this program is subject to the terms of such GNU licence.
@@ -143,8 +143,6 @@ _mali_osk_errcode_t mali_pmu_power_down(struct mali_pmu_core *pmu, u32 mask)
 	 */
 	MALI_DEBUG_ASSERT(0 == (stat & mask));
 
-	mask  &= ~(0x1 << MALI_DOMAIN_INDEX_DUMMY);
-
 	if (0 == mask || 0 == ((~stat) & mask)) return _MALI_OSK_ERR_OK;
 
 	mali_hw_core_register_write(&pmu->hw_core,
@@ -197,8 +195,6 @@ _mali_osk_errcode_t mali_pmu_power_up(struct mali_pmu_core *pmu, u32 mask)
 	stat = mali_hw_core_register_read(&pmu->hw_core,
 					  PMU_REG_ADDR_MGMT_STATUS);
 	stat &= pmu->registered_cores_mask;
-
-	mask  &= ~(0x1 << MALI_DOMAIN_INDEX_DUMMY);
 	if (0 == mask || 0 == (stat & mask)) return _MALI_OSK_ERR_OK;
 
 	/*

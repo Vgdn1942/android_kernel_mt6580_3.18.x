@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2015, 2017 ARM Limited. All rights reserved.
+ * Copyright (C) 2010-2015 ARM Limited. All rights reserved.
  * 
  * This program is free software and is provided to you under the terms of the GNU General Public License version 2
  * as published by the Free Software Foundation, and any use by you of this program is subject to the terms of such GNU licence.
@@ -271,7 +271,7 @@ int mali_mem_block_mali_map(mali_mem_block_mem *block_mem, struct mali_session_d
 
 	list_for_each_entry(m_page, &block_mem->pfns, list) {
 		MALI_DEBUG_ASSERT(m_page->type == MALI_PAGE_NODE_BLOCK);
-		phys = _mali_page_node_get_dma_addr(m_page);
+		phys = _mali_page_node_get_phy_addr(m_page);
 #if defined(CONFIG_ARCH_DMA_ADDR_T_64BIT)
 		/* Verify that the "physical" address is 32-bit and
 		 * usable for Mali, when on a system with bus addresses

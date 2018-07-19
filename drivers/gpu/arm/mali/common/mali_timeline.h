@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2017 ARM Limited. All rights reserved.
+ * Copyright (C) 2013-2015 ARM Limited. All rights reserved.
  * 
  * This program is free software and is provided to you under the terms of the GNU General Public License version 2
  * as published by the Free Software Foundation, and any use by you of this program is subject to the terms of such GNU licence.
@@ -114,13 +114,9 @@ struct mali_timeline_system {
 
 	_mali_osk_wait_queue_t         *wait_queue; /**< Wait queue. */
 
-#if defined(CONFIG_SYNC) || defined(CONFIG_SYNC_FILE)
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 6, 0)
+#if defined(CONFIG_SYNC)
 	struct sync_timeline           *signaled_sync_tl; /**< Special sync timeline used to create pre-signaled sync fences */
-#else
-	struct mali_internal_sync_timeline           *signaled_sync_tl; /**< Special sync timeline used to create pre-signaled sync fences */
-#endif
-#endif /* defined(CONFIG_SYNC) || defined(CONFIG_SYNC_FILE) */
+#endif /* defined(CONFIG_SYNC) */
 };
 
 /**
@@ -143,15 +139,11 @@ struct mali_timeline {
 	struct mali_timeline_system  *system;       /**< Timeline system this timeline belongs to. */
 	enum mali_timeline_id         id;           /**< Timeline type. */
 
-#if defined(CONFIG_SYNC) || defined(CONFIG_SYNC_FILE)
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 6, 0)
+#if defined(CONFIG_SYNC)
 	struct sync_timeline         *sync_tl;      /**< Sync timeline that corresponds to this timeline. */
-#else
-	struct mali_internal_sync_timeline *sync_tl;
-#endif
 	mali_bool destroyed;
 	struct mali_spinlock_reentrant *spinlock;       /**< Spin lock protecting the timeline system */
-#endif /* defined(CONFIG_SYNC) || defined(CONFIG_SYNC_FILE) */
+#endif /* defined(CONFIG_SYNC) */
 
 	/* The following fields are used to time out soft job trackers. */
 	_mali_osk_wq_delayed_work_t  *delayed_work;
@@ -191,24 +183,13 @@ struct mali_timeline_tracker {
 	struct mali_timeline_waiter   *waiter_head;
 	struct mali_timeline_waiter   *waiter_tail;
 
-#if defined(CONFIG_SYNC) || defined(CONFIG_SYNC_FILE)
+#if defined(CONFIG_SYNC)
 	/* These are only used if the tracker is waiting on a sync fence. */
 	struct mali_timeline_waiter   *waiter_sync; /**< A direct pointer to timeline waiter representing sync fence. */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 6, 0)
 	struct sync_fence_waiter       sync_fence_waiter; /**< Used to connect sync fence and tracker in sync fence wait callback. */
 	struct sync_fence             *sync_fence;   /**< The sync fence this tracker is waiting on. */
-#else
-	struct mali_internal_sync_fence_waiter       sync_fence_waiter; /**< Used to connect sync fence and tracker in sync fence wait callback. */
-	struct mali_internal_sync_fence             *sync_fence;   /**< The sync fence this tracker is waiting on. */
-#endif
 	_mali_osk_list_t               sync_fence_cancel_list; /**< List node used to cancel sync fence waiters. */
-	_mali_osk_list_t                sync_fence_signal_list; /** < List node used to singal sync fence callback function. */
-
-#endif /* defined(CONFIG_SYNC) || defined(CONFIG_SYNC_FILE) */
-
-#if defined(CONFIG_MALI_DMA_BUF_FENCE)
-	struct mali_timeline_waiter   *waiter_dma_fence; /**< A direct pointer to timeline waiter representing dma fence. */
-#endif
+#endif /* defined(CONFIG_SYNC) */
 
 	struct mali_timeline_system   *system;       /**< Timeline system. */
 	struct mali_timeline          *timeline;     /**< Timeline, or NULL if not on a timeline. */
@@ -481,7 +462,7 @@ MALI_STATIC_INLINE mali_bool mali_timeline_tracker_activation_error(
  */
 void mali_timeline_fence_copy_uk_fence(struct mali_timeline_fence *fence, _mali_uk_fence_t *uk_fence);
 
-_mali_osk_errcode_t mali_timeline_initialize(void);
+void mali_timeline_initialize(void);
 
 void mali_timeline_terminate(void);
 
@@ -550,14 +531,5 @@ void mali_timeline_debug_direct_print_timeline(struct mali_timeline *timeline);
 void mali_timeline_debug_print_system(struct mali_timeline_system *system, _mali_osk_print_ctx *print_ctx);
 
 #endif /* defined(MALI_TIMELINE_DEBUG_FUNCTIONS) */
-
-#if defined(CONFIG_MALI_DMA_BUF_FENCE)
-/**
- * The timeline dma fence callback when dma fence signal.
- *
- * @param pp_job_ptr The pointer to pp job that link to the signaled dma fence.
- */
-void mali_timeline_dma_fence_callback(void *pp_job_ptr);
-#endif
 
 #endif /* __MALI_TIMELINE_H__ */

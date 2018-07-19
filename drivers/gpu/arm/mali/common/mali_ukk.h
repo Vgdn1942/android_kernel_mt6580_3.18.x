@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2015, 2017 ARM Limited. All rights reserved.
+ * Copyright (C) 2010-2015 ARM Limited. All rights reserved.
  * 
  * This program is free software and is provided to you under the terms of the GNU General Public License version 2
  * as published by the Free Software Foundation, and any use by you of this program is subject to the terms of such GNU licence.
@@ -270,11 +270,6 @@ _mali_osk_errcode_t _mali_ukk_get_user_setting(_mali_uk_get_user_setting_s *args
  * @return _MALI_OSK_ERR_OK on success, otherwise a suitable _mali_osk_errcode_t on failure.
  */
 _mali_osk_errcode_t _mali_ukk_request_high_priority(_mali_uk_request_high_priority_s *args);
-
-/** @brief Make process sleep if the pending big job in kernel  >= MALI_MAX_PENDING_BIG_JOB
- *
- */
-_mali_osk_errcode_t _mali_ukk_pending_submit(_mali_uk_pending_submit_s *args);
 
 /** @} */ /* end group _mali_uk_core */
 

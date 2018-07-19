@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2014, 2016-2017 ARM Limited. All rights reserved.
+ * Copyright (C) 2010-2015 ARM Limited. All rights reserved.
  * 
  * This program is free software and is provided to you under the terms of the GNU General Public License version 2
  * as published by the Free Software Foundation, and any use by you of this program is subject to the terms of such GNU licence.
@@ -12,12 +12,8 @@
  * @file ump_ukk_wrappers.c
  * Defines the wrapper functions which turn Linux IOCTL calls into _ukk_ calls
  */
-#include <linux/version.h>
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,12,0)
-#include <linux/uaccess.h>
-#else
-#include <asm/uaccess.h>
-#endif
+
+#include <asm/uaccess.h>             /* user space access */
 
 #include "ump_osk.h"
 #include "ump_uk_types.h"
@@ -48,7 +44,7 @@ int ump_get_api_version_wrapper(u32 __user *argument, struct ump_session_data *s
 	err = _ump_uku_get_api_version(&version_info);
 	if (_MALI_OSK_ERR_OK != err) {
 		MSG_ERR(("_ump_uku_get_api_version() failed in ump_ioctl_get_api_version()\n"));
-		return ump_map_errcode(err);
+		return map_errcode(err);
 	}
 
 	version_info.ctx = NULL;
@@ -87,7 +83,7 @@ int ump_release_wrapper(u32 __user *argument, struct ump_session_data   *session
 	err = _ump_ukk_release(&release_args);
 	if (_MALI_OSK_ERR_OK != err) {
 		MSG_ERR(("_ump_ukk_release() failed in ump_ioctl_release()\n"));
-		return ump_map_errcode(err);
+		return map_errcode(err);
 	}
 
 
@@ -117,7 +113,7 @@ int ump_size_get_wrapper(u32 __user *argument, struct ump_session_data   *sessio
 	err = _ump_ukk_size_get(&user_interaction);
 	if (_MALI_OSK_ERR_OK != err) {
 		MSG_ERR(("_ump_ukk_size_get() failed in ump_ioctl_size_get()\n"));
-		return ump_map_errcode(err);
+		return map_errcode(err);
 	}
 
 	user_interaction.ctx = NULL;
