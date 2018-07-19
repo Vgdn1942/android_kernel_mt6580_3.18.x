@@ -11,4 +11,5 @@
 # GNU General Public License for more details.
 #
 
-obj-y += mali_r8p0-00dev0/
+#obj-y += mali_r8p0-00dev0/
+obj-y += mali_r8p1-00rel0/
