@@ -275,8 +275,11 @@ unsigned int cpu_speed_bounding = _GET_BITS_VAL_(3:0, get_devinfo_with_index(CPU
 		}
 	}
 #endif
-
+#ifdef CONFIG_CPU_OC
+	return CPU_LEVEL_1;
+#else
 	return lv;
+#endif
 }
 #else
 static unsigned int _mt_cpufreq_get_cpu_level(void)
@@ -650,23 +653,6 @@ static struct mt_cpu_dvfs *id_to_cpu_dvfs(enum mt_cpu_dvfs_id id)
 #define NR_MAX_OPP_TBL  8
 #define NR_MAX_CPU      8
 
-#ifdef CONFIG_CPU_OC
-/* CPU LEVEL 0, 1.5GHz segment */
-static struct mt_cpu_freq_info opp_tbl_e1_0[] = {
-	OP(CPU_DVFS_FREQ0, 131000),
-	OP(CPU_DVFS_FREQ1, 122000),
-	OP(CPU_DVFS_FREQ2, 119000),
-	OP(CPU_DVFS_FREQ3, 115000),
-	OP(CPU_DVFS_FREQ4, 112000),
-	OP(CPU_DVFS_FREQ5, 105000),
-	OP(CPU_DVFS_FREQ6, 105000),
-	OP(CPU_DVFS_FREQ7, 105000),
-#ifdef CONFIG_CPU_UC
-	OP(CPU_DVFS_FREQ8, 95000),
-	OP(CPU_DVFS_FREQ9, 95000),
-#endif
-};
-#else
 /* CPU LEVEL 0, 1.3GHz segment */
 static struct mt_cpu_freq_info opp_tbl_e1_0[] = {
 	OP(CPU_DVFS_FREQ1, 130625),
@@ -682,21 +668,20 @@ static struct mt_cpu_freq_info opp_tbl_e1_0[] = {
 	OP(CPU_DVFS_FREQ9, 100000),
 #endif
 };
-#endif
 
 /* CPU LEVEL 1, 1.5GHz segment */
 static struct mt_cpu_freq_info opp_tbl_e1_1[] = {
-	OP(CPU_DVFS_FREQ0, 131000),
-	OP(CPU_DVFS_FREQ1, 122000),
-	OP(CPU_DVFS_FREQ2, 119000),
-	OP(CPU_DVFS_FREQ3, 115000),
-	OP(CPU_DVFS_FREQ4, 112000),
-	OP(CPU_DVFS_FREQ5, 105000),
-	OP(CPU_DVFS_FREQ6, 105000),
-	OP(CPU_DVFS_FREQ7, 105000),
+	OP(CPU_DVFS_FREQ0, 131000), /* 1612 */
+	OP(CPU_DVFS_FREQ1, 130625), /* 1456 */
+	OP(CPU_DVFS_FREQ2, 122500), /* 1300 */
+	OP(CPU_DVFS_FREQ3, 119375), /* 1157 */
+	OP(CPU_DVFS_FREQ4, 115000), /* 1001 */
+	OP(CPU_DVFS_FREQ5, 115000), /*  858 */
+	OP(CPU_DVFS_FREQ6, 115000), /*  702 */
+	OP(CPU_DVFS_FREQ7, 115000), /*  559 */
 #ifdef CONFIG_CPU_UC
-	OP(CPU_DVFS_FREQ8, 95000),
-	OP(CPU_DVFS_FREQ9, 95000),
+	OP(CPU_DVFS_FREQ8, 105000), /*  403 */
+	OP(CPU_DVFS_FREQ9, 100000), /*  260 */
 #endif
 };
 
@@ -719,7 +704,7 @@ static struct opp_tbl_info opp_tbls[] = {
 #define PLL_DIV1_1157_FREQ		(1157000)	/* for 1157MHz */
 #define PLL_DIV1_1001_FREQ		(1001000)	/* for 1001MHz */
 #define PLL_DIV1_858_FREQ		(858000)	/* for 858MHz */
-#define PLL_DIV1_702_FREQ		(702000)	/* for 702 */
+#define PLL_DIV1_702_FREQ		(702000)	/* for 702MHz */
 #define PLL_DIV1_1118_FREQ		(1118000)	/* for 559MHz */
 #define PLL_DIV1_604_FREQ		(604000)	/* for 302MHz */
 #define PLL_DIV1_520_FREQ		(520000)	/* for 260MHz */
