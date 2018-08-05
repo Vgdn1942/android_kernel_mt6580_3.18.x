@@ -1570,13 +1570,6 @@ static int32_t stk3x1x_enable_ges(struct i2c_client *client, int enable, int mod
 #endif /* #ifdef STK_GES */
 
 /*----------------------------------------------------------------------------*/
-static int stk3x1x_ps_calibration(struct i2c_client *client) 
-{
-	return 0;
-
-}
-
-/*----------------------------------------------------------------------------*/
 static int stk3x1x_check_intr(struct i2c_client *client, u8 *status) 
 {
 	struct stk3x1x_priv *obj = i2c_get_clientdata(client);
@@ -4394,7 +4387,9 @@ static int stk3x1x_local_init(void)
 	} 
 
     if(-1 == stk3x1x_init_flag)
+    {
         return -1;
+    }
 
 	return 0;
 }
