@@ -20,6 +20,7 @@
  */
 
 #include <linux/input.h>
+
 #include "include/gt1x_tpd_common.h"
 #include "gt1x_config.h"
 
@@ -102,59 +103,47 @@ void gt1x_deinit_debug_node(void)
 
 static ssize_t gt1x_debug_read_proc(struct file *file, char __user *page, size_t size, loff_t *ppos)
 {
-	char *ptr = NULL;
+	char *ptr = page;
 	char temp_data[GTP_CONFIG_MAX_LENGTH] = { 0 };
 	int i;
-	ssize_t ret = 0;
+	ssize_t ret;
 
 	if (*ppos)
 		return 0;
 
-	ptr = kzalloc((size + 10), GFP_KERNEL);
-	if (ptr == NULL)
-		return -EMSGSIZE;
-
-	ret += snprintf(ptr + ret, size - ret, "==== GT1X default config setting in driver====\n");
+	ptr += sprintf(ptr, "==== GT1X default config setting in driver====\n");
 
 	for (i = 0; i < GTP_CONFIG_MAX_LENGTH; i++) {
-		ret += snprintf(ptr + ret, size - ret, "0x%02X,", gt1x_config[i]);
+		ptr += sprintf(ptr, "0x%02X,", gt1x_config[i]);
 		if (i % 10 == 9)
-			ret += snprintf(ptr + ret, size - ret, "\n");
+			ptr += sprintf(ptr, "\n");
 	}
 
-	ret += snprintf(ptr + ret, size - ret, "\n");
+	ptr += sprintf(ptr, "\n");
 
-	ret += snprintf(ptr + ret, size - ret, "==== GT1X config read from chip====\n");
+	ptr += sprintf(ptr, "==== GT1X config read from chip====\n");
 	i = gt1x_i2c_read(GTP_REG_CONFIG_DATA, temp_data, GTP_CONFIG_MAX_LENGTH);
 	GTP_INFO("I2C TRANSFER: %d", i);
 	for (i = 0; i < GTP_CONFIG_MAX_LENGTH; i++) {
-		ret += snprintf(ptr + ret, size - ret, "0x%02X,", temp_data[i]);
+		ptr += sprintf(ptr, "0x%02X,", temp_data[i]);
 
 		if (i % 10 == 9)
-			ret += snprintf(ptr + ret, size - ret, "\n");
+			ptr += sprintf(ptr, "\n");
 	}
 
 	/* Touch PID & VID */
-	ret += snprintf(ptr + ret, size - ret, "\n");
-	ret += snprintf(ptr + ret, size - ret, "==== GT1X Version Info ====\n");
+	ptr += sprintf(ptr, "\n");
+	ptr += sprintf(ptr, "==== GT1X Version Info ====\n");
 
 	gt1x_i2c_read(GTP_REG_VERSION, temp_data, 12);
-	ret += snprintf(ptr + ret, size - ret, "ProductID: GT%c%c%c%c\n",
-			temp_data[0], temp_data[1], temp_data[2], temp_data[3]);
-	ret += snprintf(ptr + ret, size - ret, "PatchID: %02X%02X\n", temp_data[4], temp_data[5]);
-	ret += snprintf(ptr + ret, size - ret, "MaskID: %02X%02X\n", temp_data[7], temp_data[8]);
-	ret += snprintf(ptr + ret, size - ret, "SensorID: %02X\n", temp_data[10] & 0x0F);
-	ret += snprintf(ptr + ret, size - ret, "Driver Num: %02d. Sensor Num: %02d\n",
-			gt1x_driver_num, gt1x_sensor_num);
+	ptr += sprintf(ptr, "ProductID: GT%c%c%c%c\n", temp_data[0], temp_data[1], temp_data[2], temp_data[3]);
+	ptr += sprintf(ptr, "PatchID: %02X%02X\n", temp_data[4], temp_data[5]);
+	ptr += sprintf(ptr, "MaskID: %02X%02X\n", temp_data[7], temp_data[8]);
+	ptr += sprintf(ptr, "SensorID: %02X\n", temp_data[10] & 0x0F);
+	ptr += sprintf(ptr, "Driver Num: %02d. Sensor Num: %02d\n", gt1x_driver_num, gt1x_sensor_num);
 
-	*ppos += ret;
-
-	if (copy_to_user(page, ptr, size)) {
-		GTP_INFO("Failed to copy from kernel to user\n");
-		ret = -EFAULT;
-	}
-	kfree(ptr);
-
+	*ppos += ptr - page;
+	ret = ptr - page;
 	return ret;
 }
 
@@ -164,7 +153,9 @@ static ssize_t gt1x_debug_write_proc(struct file *file, const char __user *buffe
 	u8 buf[GTP_CONFIG_MAX_LENGTH] = { 0 };
 	char mode_str[50] = { 0 };
 	int mode;
+	int cfg_len;
 	char arg1[50] = { 0 };
+	u8 temp_config[GTP_CONFIG_MAX_LENGTH] = { 0 };
 
 	GTP_DEBUG("write count %ld\n", (unsigned long)count);
 
@@ -257,9 +248,106 @@ static ssize_t gt1x_debug_write_proc(struct file *file, const char __user *buffe
 		return count;
 	}
 
+	if (strcmp(mode_str, "sendconfig") == 0) {
+		cfg_len = gt1x_parse_config(arg1, temp_config);
+		if (cfg_len < 0)
+			return -1;
+		gt1x_send_cfg(gt1x_config, gt1x_cfg_length);
+		return count;
+	}
+
 	return gt1x_debug_proc(buf, count);
 }
 
+static u8 ascii2hex(u8 a)
+{
+	s8 value = 0;
+
+	if (a >= '0' && a <= '9')
+		value = a - '0';
+	else if (a >= 'A' && a <= 'F')
+		value = a - 'A' + 0x0A;
+	else if (a >= 'a' && a <= 'f')
+		value = a - 'a' + 0x0A;
+	else
+		value = 0xff;
+	return value;
+}
+
+int gt1x_parse_config(char *filename, u8 *config)
+{
+	mm_segment_t old_fs;
+	struct file *fp = NULL;
+	u8 *buf;
+	int i;
+	int len;
+	int cur_len = -1;
+	u8 high, low;
+
+	old_fs = get_fs();
+	set_fs(KERNEL_DS);
+
+	fp = filp_open(filename, O_RDONLY, 0);
+	if (IS_ERR(fp)) {
+		GTP_ERROR("Open config file error!(file: %s)", filename);
+		goto parse_cfg_fail1;
+	}
+	len = fp->f_op->llseek(fp, 0, SEEK_END);
+	if (len > GTP_CONFIG_MAX_LENGTH * 6 || len < GTP_CONFIG_MAX_LENGTH) {
+		GTP_ERROR("Config is invalid!(length: %d)", len);
+		goto parse_cfg_fail2;
+	}
+	buf = kzalloc(len, GFP_KERNEL);
+	if (buf == NULL) {
+		GTP_ERROR("Allocate memory failed!(size: %d)", len);
+		goto parse_cfg_fail2;
+	}
+	fp->f_op->llseek(fp, 0, SEEK_SET);
+	if (fp->f_op->read(fp, (char *)buf, len, &fp->f_pos) != len)
+		GTP_ERROR("Read %d bytes from file failed!", len);
+
+	GTP_INFO("Parse config file: %s (%d bytes)", filename, len);
+
+	for (i = 0, cur_len = 0; i < len && cur_len < GTP_CONFIG_MAX_LENGTH;) {
+		if (buf[i] == ' ' || buf[i] == '\r' || buf[i] == '\n' || buf[i] == ',') {
+			i++;
+			continue;
+		}
+		if (buf[i] == '0' && (buf[i + 1] == 'x' || buf[i + 1] == 'X')) {
+
+			high = ascii2hex(buf[i + 2]);
+			low = ascii2hex(buf[i + 3]);
+
+			if (high != 0xFF && low != 0xFF) {
+				config[cur_len++] = (high << 4) + low;
+				i += 4;
+				continue;
+			}
+		}
+		GTP_ERROR("Illegal config file!");
+		cur_len = -1;
+		break;
+	}
+
+	if (cur_len < GTP_CONFIG_MIN_LENGTH || config[cur_len - 1] != 0x01) {
+		cur_len = -1;
+	} else {
+		for (i = 0; i < cur_len; i++) {
+			if (i % 10 == 0)
+				GTP_INFO("\n<<GTP-DBG>>:");
+			GTP_INFO("0x%02x,", config[i]);
+		}
+		GTP_INFO("\n");
+	}
+
+	kfree(buf);
+ parse_cfg_fail2:
+	filp_close(fp, NULL);
+ parse_cfg_fail1:
+	set_fs(old_fs);
+
+	return cur_len;
+}
 
 s32 _do_i2c_read(struct i2c_msg *msgs, u16 addr, u8 *buffer, s32 len)
 {
@@ -646,14 +734,6 @@ s32 gt1x_reset_guitar(void)
 		GTP_GPIO_AS_INT(GTP_INT_PORT);
 	}
 
-	/* hotknot is default on, disable it after reset to save power */
-#ifdef CONFIG_GTP_HOTKNOT
-	if (!hotknot_enabled)
-		gt1x_send_cmd(GTP_CMD_HN_EXIT_SLAVE, 0);
-#else
-	gt1x_send_cmd(GTP_CMD_HN_EXIT_SLAVE, 0);
-#endif
-
 #ifdef CONFIG_GTP_ESD_PROTECT
 	ret = gt1x_init_ext_watchdog();
 #else
@@ -911,7 +991,7 @@ void gt1x_power_reset(void)
 	s32 i = 0;
 	s32 ret = 0;
 
-	if (is_resetting || update_info.status)
+	if (is_resetting)
 		return;
 	GTP_INFO("force_reset_guitar");
 	is_resetting = 1;
@@ -971,12 +1051,10 @@ s32 gt1x_request_event_handler(void)
 	case GTP_RQST_MAIN_CLOCK:
 		GTP_INFO("Request main clock.");
 		break;
-#if 0
 #ifdef CONFIG_GTP_HOTKNOT
 	case GTP_RQST_HOTKNOT_CODE:
 		GTP_INFO("Request HotKnot Code.");
 		break;
-#endif
 #endif
 	default:
 		break;
@@ -1650,7 +1728,6 @@ s32 gt1x_init(void)
 		gt1x_abs_y_max = tpd_dts_data.tpd_resolution[1];
 		gt1x_int_type = GTP_INT_TRIGGER;
 		gt1x_wakeup_level = GTP_WAKEUP_LEVEL;
-		return ret;
 	}
 
 	gt1x_workqueue = create_singlethread_workqueue("gt1x_workthread");
@@ -1702,4 +1779,3 @@ void gt1x_deinit(void)
 	if (gt1x_workqueue)
 		destroy_workqueue(gt1x_workqueue);
 }
-MODULE_LICENSE("GPL");

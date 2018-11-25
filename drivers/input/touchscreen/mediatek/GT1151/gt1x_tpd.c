@@ -32,29 +32,26 @@
 #include <linux/of.h>
 #include <linux/of_irq.h>
 
-#include <linux/suspend.h>
-
 /*1 enable,0 disable,touch_panel_eint default status, need to confirm after register eint*/
 int irq_flag = 1;
 static spinlock_t irq_flag_lock;
 /*0 power off,default, 1 power on*/
 static int power_flag;
 static int tpd_flag;
-static int tpd_pm_flag;
-static int tpd_tui_flag;
-static int tpd_tui_low_power_skipped;
-DEFINE_MUTEX(tui_lock);
+
 int tpd_halt = 0;
 static int tpd_eint_mode = 1;
 static struct task_struct *thread;
-static struct task_struct *update_thread;
+
+static int tpd_tui_flag;
+static int tpd_tui_low_power_skipped;
+DEFINE_MUTEX(tui_lock);
+
 static struct task_struct *probe_thread;
-static struct notifier_block pm_notifier_block;
+
 static int tpd_polling_time = 50;
 static DECLARE_WAIT_QUEUE_HEAD(waiter);
-static DECLARE_WAIT_QUEUE_HEAD(pm_waiter);
 static bool gtp_suspend;
-
 DECLARE_WAIT_QUEUE_HEAD(init_waiter);
 DEFINE_MUTEX(i2c_access);
 unsigned int touch_irq = 0;
@@ -354,7 +351,7 @@ static struct device_attribute *gt9xx_attrs[] = {
 
 static int tpd_i2c_detect(struct i2c_client *client, struct i2c_board_info *info)
 {
-	strncpy(info->type, "mtk-tpd", sizeof(info->type));
+	strcpy(info->type, "mtk-tpd");
 	return 0;
 }
 
@@ -382,14 +379,11 @@ void gt1x_irq_enable(void)
 
 	if (irq_flag == 0) {
 		irq_flag = 1;
-		enable_irq(touch_irq);
 		spin_unlock_irqrestore(&irq_flag_lock, flags);
+		enable_irq(touch_irq);
 	} else if (irq_flag == 1) {
 		spin_unlock_irqrestore(&irq_flag_lock, flags);
-		/* workaround */
-		if (strcmp(CONFIG_ARCH_MTK_PROJECT, "evb6580hd_bsp_hdp") != 0) {
-			GTP_INFO("Touch Eint already enabled!");
-		}
+		GTP_INFO("Touch Eint already enabled!");
 	} else {
 		spin_unlock_irqrestore(&irq_flag_lock, flags);
 		GTP_ERROR("Invalid irq_flag %d!", irq_flag);
@@ -406,8 +400,8 @@ void gt1x_irq_disable(void)
 
 	if (irq_flag == 1) {
 		irq_flag = 0;
-		disable_irq_nosync(touch_irq);
 		spin_unlock_irqrestore(&irq_flag_lock, flags);
+		disable_irq(touch_irq);
 	} else if (irq_flag == 0) {
 		spin_unlock_irqrestore(&irq_flag_lock, flags);
 		GTP_INFO("Touch Eint already disabled!");
@@ -499,8 +493,8 @@ static int tpd_irq_registration(void)
 
 	node = of_find_matching_node(node, touch_of_match);
 	if (node) {
-		if (!of_property_read_u32_array(node, "debounce", ints, ARRAY_SIZE(ints)))
-			gpio_set_debounce(ints[0], ints[1]);
+		of_property_read_u32_array(node, "debounce", ints, ARRAY_SIZE(ints));
+		gpio_set_debounce(ints[0], ints[1]);
 
 		touch_irq = irq_of_parse_and_map(node, 0);
 		GTP_INFO("Device gt1x_int_type = %d!", gt1x_int_type);
@@ -529,28 +523,6 @@ static int tpd_irq_registration(void)
 	return ret;
 }
 
-void gt1x_auto_update_done(void)
-{
-	tpd_pm_flag = 1;
-	wake_up_interruptible(&pm_waiter);
-}
-#if CONFIG_GTP_AUTO_UPDATE
-int gt1x_pm_notifier(struct notifier_block *nb, unsigned long val, void *ign)
-{
-	switch (val) {
-	case PM_RESTORE_PREPARE:
-		pr_err("%s: PM_RESTORE_PREPARE enter\n", __func__);
-		if (!IS_ERR(update_thread) && update_thread) {
-			wait_event_interruptible(waiter, tpd_pm_flag == 1);
-			/* pr_err("%s: stoping update thread(%d)", __FUNCTION__, kthread_stop(update_thread)); */
-		}
-		pr_err("%s: PM_RESTORE_PREPARE leave\n", __func__);
-		return NOTIFY_DONE;
-	}
-	return NOTIFY_OK;
-}
-#endif
-
 int tpd_reregister_from_tui(void)
 {
 	int ret = 0;
@@ -576,15 +548,6 @@ static int tpd_registration(void *client)
 		/* TP resolution == LCD resolution, no need to match resolution when initialized fail */
 		gt1x_abs_x_max = 0;
 		gt1x_abs_y_max = 0;
-		return 0;
-	}
-
-	/* workaround */
-	if (strcmp(CONFIG_ARCH_MTK_PROJECT, "evb6580hd_bsp_hdp") == 0) {
-		tpd_eint_mode = 0;
-		tpd_polling_time = 10;
-		tpd_flag = 1;
-		wake_up_interruptible(&waiter);
 	}
 
 	thread = kthread_run(tpd_event_handler, 0, TPD_DEVICE);
@@ -615,14 +578,11 @@ static int tpd_registration(void *client)
 
 #ifdef CONFIG_GTP_AUTO_UPDATE
 
-	update_thread = kthread_run(gt1x_auto_update_proc, (void *)NULL, "gt1x_auto_update");
-	if (IS_ERR(update_thread)) {
-		err = PTR_ERR(update_thread);
+	thread = kthread_run(gt1x_auto_update_proc, (void *)NULL, "gt1x_auto_update");
+	if (IS_ERR(thread)) {
+		err = PTR_ERR(thread);
 		GTP_INFO(TPD_DEVICE " failed to create auto-update thread: %d\n", err);
 	}
-	pm_notifier_block.notifier_call = gt1x_pm_notifier;
-	pm_notifier_block.priority = 0;
-	register_pm_notifier(&pm_notifier_block);
 #endif
 	return 0;
 }
@@ -643,14 +603,20 @@ static s32 tpd_i2c_probe(struct i2c_client *client, const struct i2c_device_id *
 		GTP_INFO(TPD_DEVICE " failed to create probe thread: %d\n", err);
 		return err;
 	}
-
-	err = wait_event_interruptible_timeout(init_waiter, check_flag == true, 5 * HZ);
-	if (err <= 0)
-		GTP_ERROR("init_waiter fail, err=%d\n", err);
-
-	GTP_INFO("tpd_i2c_probe end.wait_event_interruptible, err=%d, flag=%d, tpd_load_status=%d\n",
-				err, check_flag, tpd_load_status);
-
+	GTP_INFO("tpd_i2c_probe start.wait_event_interruptible");
+	wait_event_interruptible_timeout(init_waiter, check_flag == true, 5 * HZ);
+	GTP_INFO("tpd_i2c_probe end.wait_event_interruptible");
+/*
+	do {
+		GTP_INFO("ZH tpd_i2c_probe A count = %d", count);
+		msleep(20);
+		GTP_INFO("ZH tpd_i2c_probe B count = %d", count);
+		count++;
+		if (check_flag == true)
+			break;
+	} while (count < 300);
+	GTP_INFO("tpd_i2c_probe done.count = %d, flag = %d", count, tpd_load_status);
+*/
 	return 0;
 }
 
@@ -668,8 +634,8 @@ static irqreturn_t tpd_eint_interrupt_handler(unsigned irq, struct irq_desc *des
 	/* enter EINT handler disable INT, make sure INT is disable when handle touch event including top/bottom half */
 	/* use _nosync to avoid deadlock */
 	irq_flag = 0;
-	disable_irq_nosync(touch_irq);
 	spin_unlock_irqrestore(&irq_flag_lock, flags);
+	disable_irq_nosync(touch_irq);
 	/*GTP_INFO("disable irq_flag=%d",irq_flag);*/
 	wake_up_interruptible(&waiter);
 	return IRQ_HANDLED;
@@ -879,7 +845,7 @@ int gt1x_debug_proc(u8 *buf, int count)
 	int mode;
 	int ret;
 
-	ret = sscanf(buf, "%49s %d", (char *)&mode_str, &mode);
+	ret = sscanf(buf, "%s %d", (char *)&mode_str, &mode);
 	if (ret < 0) {
 		GTP_ERROR("gt1x_debug_proc sscanf failed");
 		return ret;
@@ -1038,8 +1004,6 @@ static void tpd_suspend(struct device *h)
 	u8 buf[1] = { 0 };
 #endif
 #endif
-	if (is_resetting || update_info.status)
-		return;
 	GTP_INFO("TPD suspend start...");
 
 	mutex_lock(&tui_lock);
@@ -1110,8 +1074,6 @@ static void tpd_suspend(struct device *h)
 static void tpd_resume(struct device *h)
 {
 	s32 ret = -1;
-	if (is_resetting || update_info.status)
-		return;
 
 	GTP_INFO("TPD resume start...");
 	gtp_suspend = false;
@@ -1165,13 +1127,6 @@ static struct tpd_driver_t tpd_device_driver = {
 	.resume = tpd_resume,
 };
 
-void tpd_off(void)
-{
-	gt1x_power_switch(SWITCH_OFF);
-	tpd_halt = 1;
-	gt1x_irq_disable();
-}
-
 int tpd_enter_tui(void)
 {
 	int ret = 0;
@@ -1202,6 +1157,14 @@ int tpd_exit_tui(void)
 
 	GTP_INFO("[%s] exit TUI-", __func__);
 	return ret;
+}
+
+
+void tpd_off(void)
+{
+	gt1x_power_switch(SWITCH_OFF);
+	tpd_halt = 1;
+	gt1x_irq_disable();
 }
 
 void tpd_on(void)
@@ -1241,4 +1204,3 @@ static void __exit tpd_driver_exit(void)
 
 module_init(tpd_driver_init);
 module_exit(tpd_driver_exit);
-MODULE_LICENSE("GPL");

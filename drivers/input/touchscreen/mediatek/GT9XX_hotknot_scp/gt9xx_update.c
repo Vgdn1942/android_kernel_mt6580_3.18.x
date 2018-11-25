@@ -38,6 +38,7 @@
 #include <linux/i2c.h>
 #include <linux/sched.h>
 #include <linux/kthread.h>
+#include <linux/rtpm_prio.h>
 #include <linux/wait.h>
 #include <linux/time.h>
 #include <linux/delay.h>
@@ -48,7 +49,7 @@
 #include "include/tpd_custom_gt9xx.h"
 
 #if ((defined(CONFIG_GTP_AUTO_UPDATE) && defined(CONFIG_GTP_HEADER_FW_UPDATE)) || GTP_COMPATIBLE_MODE)
-#include "include/firmware1/gt9xx_firmware.h"
+#include "gt9xx_firmware.h"
 #endif
 
 #define GUP_REG_HW_INFO             0x4220

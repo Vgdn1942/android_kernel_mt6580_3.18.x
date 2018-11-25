@@ -1,16 +1,3 @@
-/*
- * Copyright (C) 2015 MediaTek Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- */
-
 #ifndef _KD_CAMERA_HW_H_
 #define _KD_CAMERA_HW_H_
 
@@ -72,15 +59,14 @@ extern struct device *sensor_device;
 #define GPIO_OUT_ONE 1
 #define GPIO_OUT_ZERO 0
 #endif /* End of #if defined CONFIG_MTK_LEGACY */
-
+#define HQ_ANTI_CAMERA_INTERACT 1
 
 typedef enum KD_REGULATOR_TYPE_TAG {
 	VCAMA,
 	VCAMD,
 	VCAMIO,
 	VCAMAF,
- 	VCAMD_SUB,
-	VGP3,
+	SUB_VCAMD
 } KD_REGULATOR_TYPE_T;
 
 typedef enum {
@@ -90,6 +76,23 @@ typedef enum {
 	CAM1RST,
 	CAMLDO
 } CAMPowerType;
+
+#if HQ_ANTI_CAMERA_INTERACT
+	 typedef enum {
+	 		MAIN_NOCAMERA,
+			MAIN_HI843B,
+			MAIN_OV8856_HUAQUAN,
+			MAIN_OV8856_QUNHUI,
+	} UsedMainCameraType; 
+
+	 typedef enum {
+	 		SUB_NOCAMERA,
+			SUB_HI553,
+			SUB_GC5005,
+	} UsedSubCameraType; 
+
+		
+#endif
 
 extern void ISP_MCLK1_EN(BOOL En);
 extern void ISP_MCLK2_EN(BOOL En);

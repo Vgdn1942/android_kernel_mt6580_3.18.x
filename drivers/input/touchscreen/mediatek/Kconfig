@@ -12,8 +12,7 @@ menuconfig INPUT_TOUCHSCREEN
 if INPUT_TOUCHSCREEN
 
 config TOUCHSCREEN_MTK
-	tristate "MediaTek Touch Panel Driver"
-	default n
+	bool "MediaTek Touch Panel Driver"
 	help
 	  Say Y here if you have MediaTek touch panel.
 
@@ -22,10 +21,15 @@ config TOUCHSCREEN_MTK
 	  To compile this dirver as a module, choose M here: the
 	  module will be called.
 
-source "drivers/input/touchscreen/mediatek/GT1151/Kconfig"
+config CTP_GESTURE_WAKEUP
+   	bool "CTP gesture wakeup"
+   	default n
+  	help
+ 	   Say Y here if you have GT9 touch panel GTP_GESTURE_WAKEUP.
 
+	   If unsure, say N.
 
-config TOUCHSCREEN_MTK_GT1151TB
+config TOUCHSCREEN_MTK_GT1151
 	bool "GT1151 for Mediatek package"
 	default n
 	help
@@ -36,7 +40,7 @@ config TOUCHSCREEN_MTK_GT1151TB
 	  To compile this dirver as a module, choose M here: the
 	  module will be called.
 
-source "drivers/input/touchscreen/mediatek/GT1151TB/Kconfig"
+source "drivers/input/touchscreen/mediatek/GT1151/Kconfig"
 
 config TOUCHSCREEN_MTK_GT928
 	tristate "GT928 Touchscreen"
@@ -45,44 +49,25 @@ config TOUCHSCREEN_MTK_GT928
 	  connected to your system.
 	  If unsure, say N.
 	  To compile this driver as a module, choose M here.
-
-
-config TOUCHSCREEN_MTK_GT9XXTB_HN_NEW
-	bool "GT9XXTB hotknot new driver for Mediatek package"
+config TOUCHSCREEN_MTK_GT9XXTB_HOTKNOT
+	bool "GT9XXTB hotknot for Mediatek package"
 	default n
 	help
-	  This is new driver for goodix GT9XX series touch screen.
-	  This driver upgrade FW with request_firmware method.
-	  Say Y here if you use gt9xx series new touch driver.
-	  If unsure, say N.
-
-source "drivers/input/touchscreen/mediatek/gt9xxtb_hn_new/Kconfig"
-
-config TOUCHSCREEN_MTK_GT9XX_HOTKNOT
-	bool "GT9XX hotknot for Mediatek package"
-	default n
-	help
-	  Say Y here if you have GT9XX hotknot touch panel.
+	  Say Y here if you have GT9xx touch panel.
 
 	  If unsure, say N.
 
 	  To compile this dirver as a module, choose M here: the
 	  module will be called.
 
-source "drivers/input/touchscreen/mediatek/GT9XX_hotknot/Kconfig"
+source "drivers/input/touchscreen/mediatek/GT9XXTB_hotknot/Kconfig"
 
-config TOUCHSCREEN_MTK_GT9XX_HOTKNOT_PHONE
-	bool "GT9XX hotknot phone for Mediatek package"
+config TOUCHSCREEN_MTK_GT615
+	bool "GT615 for Mediatek package"
 	default n
 	help
-	  Say Y here if you have GT9XX hotknot phone touch panel.
-
-	  If unsure, say N.
-
-	  To compile this dirver as a module, choose M here: the
-	  module will be called.
-
-source "drivers/input/touchscreen/mediatek/GT9XX_hotknot_phone/Kconfig"
+		Say Y here if you have GT615
+source "drivers/input/touchscreen/mediatek/gt9xx_mtk/Kconfig"
 
 config TOUCHSCREEN_MTK_SYNAPTICS_I2C_RMI4
 	tristate "Synaptics DSX I2C touchscreen"
@@ -98,11 +83,25 @@ config TOUCHSCREEN_MTK_SYNAPTICS_I2C_RMI4
 
 source "drivers/input/touchscreen/mediatek/synaptics_i2c_rmi4/Kconfig"
 
+config TOUCHSCREEN_MTK_GT910
+	bool "GT910 for Mediatek package"
+	default n
+	help
+	  Say Y here if you have GT910 touch panel.
+
+	  If unsure, say N.
+
+	  To compile this dirver as a module, choose M here: the
+	  module will be called.
+
+source "drivers/input/touchscreen/mediatek/GT910/Kconfig"
+
 config TOUCHSCREEN_MTK_GT9XX_HOTKNOT_SCP
 	bool "GT9XX_HOTKNOT_SCP for Mediatek package"
 	default n
 	help
 	  Say Y here if you have GT9XX_HOTKNOT_SCP touch panel.
+
 	  If unsure, say N.
 
 	  To compile this dirver as a module, choose M here: the
@@ -110,11 +109,25 @@ config TOUCHSCREEN_MTK_GT9XX_HOTKNOT_SCP
 
 source "drivers/input/touchscreen/mediatek/GT9XX_hotknot_scp/Kconfig"
 
+config TOUCHSCREEN_MTK_GT911
+	bool "GT911 for Mediatek package"
+	default n
+	help
+	  Say Y here if you have GT911 touch panel.
+
+	  If unsure, say N.
+
+	  To compile this dirver as a module, choose M here: the
+	  module will be called.
+
+source "drivers/input/touchscreen/mediatek/GT911/Kconfig"
+
 config TOUCHSCREEN_MTK_FT5X0X
 	bool "FT5X0X for Mediatek package"
 	default n
 	help
 	  Say Y here if you have FT5X0X touch panel.
+
 	  If unsure, say N.
 
 	  To compile this dirver as a module, choose M here: the
@@ -122,68 +135,16 @@ config TOUCHSCREEN_MTK_FT5X0X
 
 source "drivers/input/touchscreen/mediatek/ft5x0x/Kconfig"
 
-
-config TOUCHSCREEN_MTK_FT6336S
-	bool "FT633S for Mediatek package"
+config TOUCHSCREEN_MTK_FT3327
+	bool "FT3327 for Mediatek package"
 	default n
 	help
-	  Say Y here if you have FT6336S touch panel.
+	  Say Y here if you have GT615 touch panel.
+
 	  If unsure, say N.
 
 	  To compile this dirver as a module, choose M here: the
 	  module will be called.
 
-config TOUCHSCREEN_MTK_MSG2238A
-	bool "MSG2238A for Mediatek package"
-	default n
-	help
-	  Say Y here if you have MSG2238A touch panel.
-	  If unsure, say N.
-
-	  To compile this dirver as a module, choose M here: the
-	  module will be called.
-
-config TOUCHSCREEN_MTK_SYNAPTICS_3320_50
-	bool "Synaptics 5.0inch for Mediatek package"
-	default n
-
-config TOUCHSCREEN_UNIFIED_DRIVER_4
-	bool "LGE Unified driver Ver4.0"
-	depends on I2C
-	default n
-	help
-	  Say Y here if you use lge unified driver ver4.0
-	  if unsure, say N
-	  To compile this dirver as a module, choose M here: the
-	  module will be called.
-
-config TOUCHSCREEN_LGE_MIT300
-	bool "Melfas MIT-300 based on LGE Touch Core driver"
-	depends on I2C && TOUCHSCREEN_UNIFIED_DRIVER_4
-	default n
-	help
-	  Say Y here if you have a Mefas MIT-300 I2C touchscreen
-	  connected to your system.
-	  To compile this dirver as a module, choose M here: the
-	  module will be called.
-
-config TOUCHSCREEN_LGE_MIT300_M4
-	bool "Melfas MIT-300 based on LGE Touch Core driver"
-	depends on I2C && TOUCHSCREEN_UNIFIED_DRIVER_4
-	default n
-	help
-	  Say Y here if you have a Mefas MIT-300 I2C touchscreen
-	  connected to your system.
-	  To compile this dirver as a module, choose M here: the
-	  module will be called.
-
-config TOUCHSCREEN_LGE_FT8707
-	bool "FT8707 based on LGE Touch Core driver"
-	depends on I2C && TOUCHSCREEN_UNIFIED_DRIVER_4
-	default n
-	help
-	  Say Y here if you have a FT8707 I2C touchscreen
-	  connected to your system.
-	  To compile this dirver as a module, choose M here: the
-	  module will be called.
+source "drivers/input/touchscreen/mediatek/ft3x27_mtk/Kconfig"
 endif

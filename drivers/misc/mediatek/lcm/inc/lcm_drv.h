@@ -877,5 +877,8 @@ unsigned char which_lcd_module_triple(void);
 int lcm_vgp_supply_enable(void);
 int lcm_vgp_supply_disable(void);
 extern LCM_DSI_MODE_CON lcm_dsi_mode;
+extern void lcd_bais_enn_enable(u8 enable);
+extern void lcd_bais_enp_enable(u8 enable);
+extern int tps65132_write_bytes(unsigned char addr, unsigned char value);
 
 #endif /* __LCM_DRV_H__ */

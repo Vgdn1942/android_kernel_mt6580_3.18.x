@@ -1,52 +1,4 @@
-/*
- * Copyright (C) 2015 MediaTek Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- */
 
-/*****************************************************************************
- *
- * Filename:
- * ---------
- *   sensor.c
- *
- * Project:
- * --------
- *   DUMA
- *
- * Description:
- * ------------
- *   Source code of Sensor driver
- *
- *
- * Author:
- * -------
- *   PC Huang (MTK02204)
- *
- *============================================================================
- *             HISTORY
- * Below this line, this part is controlled by CC/CQ. DO NOT MODIFY!!
- *------------------------------------------------------------------------------
- * $Revision:$
- * $Modtime:$
- * $Log:$
- *
- * 01 04 2012 hao.wang
- * [ALPS00109603] getsensorid func check in
- * .
- *
- *
- *------------------------------------------------------------------------------
- * Upper this line, this part is controlled by CC/CQ. DO NOT MODIFY!!
- *============================================================================
- ****************************************************************************/
 
 #if !defined(MTK_NATIVE_3D_SUPPORT) //2D
   #define S5K4ECGX_MIPIYUV_MAIN_2_USE_HW_I2C
@@ -10147,7 +10099,7 @@ static void S5K4ECGX_MIPI_Capture_Mode_Setting(kal_uint8 capture_mode)
     S5K4ECGX_write_cmos_sensor(0x0F12, 0x0000); //REG_TC_PZOOM_CapZoomReqInputWidthOfs
     S5K4ECGX_write_cmos_sensor(0x0F12, 0x0000); //REG_TC_PZOOM_CapZoomReqInputHeightOfs
 
-    //* Kilsung.Hur 20121209 no need for YUV.
+// * Kilsung.Hur 20121209 no need for YUV.
     S5K4ECGX_write_cmos_sensor(0x002A, 0x047C);
     S5K4ECGX_write_cmos_sensor(0x0F12, 0x0001); //REG_TC_THUMB_Thumb_bActive
     S5K4ECGX_write_cmos_sensor(0x0F12, 0x0280); //REG_TC_THUMB_Thumb_uWidth //640
@@ -10834,7 +10786,7 @@ static void S5K4ECGX_MIPI_AE_Get_Status(UINT32 *pFeatureReturnPara32)
 {
     SENSORDB("[Enter] S5K4ECGX GET_AE_STATUS\n");
 
-    //*pFeatureReturnPara32 = S5K4ECGX_Driver.aeState;
+// *pFeatureReturnPara32 = S5K4ECGX_Driver.aeState;
     unsigned int aStatus; // [b:1] 1: AE enable, 0: AE disable; [b:3] 1: AWB enable, 0: AWB disable
     unsigned int aeStable; // 1: stable, 0: unstable
     kal_bool aeEnable;
@@ -10891,7 +10843,7 @@ static void S5K4ECGX_MIPI_AWB_Get_Status(UINT32 *pFeatureReturnPara32)
 {
     SENSORDB("[Enter] S5K4ECGX GET_AWB_STATUS\n");
 
-    //*pFeatureReturnPara32 = S5K4ECGX_Driver.aeState;
+// *pFeatureReturnPara32 = S5K4ECGX_Driver.aeState;
     unsigned int aStatus; // [b:1] 1: AE enable, 0: AE disable; [b:3] 1: AWB enable, 0: AWB disable
     unsigned int awbStable; // 1: stable, 0: unstable
     kal_bool awbEnable;

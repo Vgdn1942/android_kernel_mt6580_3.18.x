@@ -518,7 +518,7 @@ s32 hotknot_event_handler(u8 *data)
 #define COMPAT_IO_PRINT                     (_IOW(GOODIX_MAGIC_NUMBER, 111, u8) & NEGLECT_SIZE_MASK)
 #endif
 #define CMD_HEAD_LENGTH             20
-static s32 io_iic_read(u8 *data, int buf_size, void __user *arg)
+static s32 io_iic_read(u8 *data, void __user *arg)
 {
 	s32 err = ERROR;
 	s32 data_length = 0;
@@ -533,10 +533,6 @@ static s32 io_iic_read(u8 *data, int buf_size, void __user *arg)
 	addr = data[0] << 8 | data[1];
 	data_length = data[2] << 8 | data[3];
 
-	if (data_length + CMD_HEAD_LENGTH > buf_size) {
-		GTP_ERROR("incorrect data length, data = %d, buffer = %d\n", data_length, buf_size);
-		return ERROR_MEM;
-	}
 	err = gt1x_i2c_read(addr, &data[CMD_HEAD_LENGTH], data_length);
 	if (!err) {
 		err = copy_to_user(&((u8 __user *) arg)[CMD_HEAD_LENGTH], &data[CMD_HEAD_LENGTH], data_length);
@@ -558,10 +554,6 @@ static s32 io_iic_write(u8 *data)
 	s32 data_length = 0;
 	u16 addr = 0;
 
-	if (data == NULL) {
-		GTP_ERROR("data is null\n");
-		return -1;
-	}
 	addr = data[0] << 8 | data[1];
 	data_length = data[2] << 8 | data[3];
 
@@ -582,8 +574,6 @@ static long gt1x_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 	u32 value = 0;
 	s32 ret = 0;		/*the initial value must be 0*/
 	u8 *data = NULL;
-	int cnt = 30;
-	s32 data_length = 0;
 	static struct ratelimit_state ratelimit = {
 		.lock = __RAW_SPIN_LOCK_UNLOCKED(ratelimit.lock),
 		.interval = HZ/2,
@@ -591,17 +581,13 @@ static long gt1x_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 		.begin = 1,
 	};
 
-    /* Blocking when firmwaer updating */
-	while (cnt-- && update_info.status)
-		ssleep(1);
-
 	GTP_DEBUG("IOCTL CMD:%x", cmd);
 	/*GTP_DEBUG("command:%d, length:%d, rw:%s", _IOC_NR(cmd), _IOC_SIZE(cmd),
 		(_IOC_DIR(cmd) & _IOC_READ) ? "read" : (_IOC_DIR(cmd) & _IOC_WRITE) ? "write" : "-");*/
 
 	if (_IOC_DIR(cmd)) {
 		s32 err = -1;
-		data_length = _IOC_SIZE(cmd);
+		s32 data_length = _IOC_SIZE(cmd);
 
 		data = kzalloc(data_length, GFP_KERNEL);
 		memset(data, 0, data_length);
@@ -633,10 +619,7 @@ static long gt1x_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 				GTP_ERROR("touch is suspended.");
 			break;
 		}
-		if (data != NULL)
-			ret = io_iic_read(data, data_length, (void __user *)arg);
-		else
-			GTP_ERROR("Touch read data is NULL.");
+		ret = io_iic_read(data, (void __user *)arg);
 		break;
 
 	case IO_IIC_WRITE:
@@ -645,10 +628,7 @@ static long gt1x_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 				GTP_ERROR("touch is suspended.");
 			break;
 		}
-		if (data != NULL)
-			ret = io_iic_write(data);
-		else
-			GTP_ERROR("Touch write data is NULL.");
+		ret = io_iic_write(data);
 		break;
 
 	case IO_RESET_GUITAR:
@@ -988,4 +968,3 @@ void gt1x_deinit_node(void)
 	misc_deregister(&hotknot_misc_device);
 #endif
 }
-MODULE_LICENSE("GPL");

@@ -23,8 +23,15 @@
 #define AF_MAGIC 'A'
 
 /* AFDRV_XXXX be the same as AF_DRVNAME in (*af).c */
+#ifdef CONFIG_MTK_LENS_BU6424AF_SUPPORT
 #define AFDRV_BU6424AF "BU6424AF"
+#endif
+#ifdef CONFIG_MTK_LENS_DW9714AF_SUPPORT
 #define AFDRV_DW9714AF "DW9714AF"
+#endif
+#ifdef CONFIG_MTK_LENS_GT9761AF_SUPPORT
+#define AFDRV_GT9761AF "GT9761AF"
+#endif
 
 /* Structures */
 struct stAF_MotorInfo {

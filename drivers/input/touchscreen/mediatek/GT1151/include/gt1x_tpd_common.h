@@ -186,7 +186,7 @@ extern int tpd_em_log;
 #define IS_NUM_OR_CHAR(x)    (((x) > 'A' && (x) < 'Z') || ((x) > '0' && (x) < '9'))
 
 /*Log define*/
-#define GTP_INFO(fmt, arg...)           pr_info("<<GTP-INF>>[%s:%d] "fmt"\n", __func__, __LINE__, ##arg)
+#define GTP_INFO(fmt, arg...)           pr_warn("<<GTP-INF>>[%s:%d] "fmt"\n", __func__, __LINE__, ##arg)
 #define GTP_ERROR(fmt, arg...)          pr_err("<<GTP-ERR>>[%s:%d] "fmt"\n", __func__, __LINE__, ##arg)
 #define GTP_DEBUG(fmt, arg...)				\
 	do {									\
@@ -291,7 +291,6 @@ extern s32 hotknot_event_handler(u8 *data);
 #endif				/*CONFIG_GTP_HOTKNOT */
 extern s32 gt1x_init_node(void);
 extern bool check_flag;
-
 #ifdef CONFIG_GTP_GESTURE_WAKEUP
 extern DOZE_T gesture_doze_status;
 extern int gesture_enabled;
@@ -340,7 +339,6 @@ extern void gt1x_leave_update_mode(void);
 extern int gt1x_hold_ss51_dsp_no_reset(void);
 extern int gt1x_load_patch(u8 *patch, u32 patch_size, int offset, int bank_size);
 extern int gt1x_startup_patch(void);
-extern void gt1x_auto_update_done(void);
 extern int gt1x_is_tpd_halt(void);
 
 /* Export from gt1x_tool.c */
@@ -427,6 +425,5 @@ extern bool upmu_is_chr_det(void);
 #endif
 extern struct tpd_filter_t tpd_filter;
 extern wait_queue_head_t init_waiter;
-extern u8 is_resetting;
 
 #endif /* GT1X_TPD_COMMON_H__ */

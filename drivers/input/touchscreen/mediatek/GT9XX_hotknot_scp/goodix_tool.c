@@ -24,6 +24,7 @@
 #include <linux/i2c.h>
 #include <linux/sched.h>
 #include <linux/kthread.h>
+#include <linux/rtpm_prio.h>
 #include <linux/wait.h>
 #include <linux/time.h>
 #include <linux/delay.h>
@@ -36,7 +37,7 @@
 #include "include/tpd_custom_gt9xx.h"
 #pragma pack(1)
 typedef struct {
-	u8 wr;			/*write read flag 0:R  1:W  2:PID 3:*/
+	u8 wr;			/*write read flag£¬0:R  1:W  2:PID 3:*/
 	u8 flag;		/*0:no need flag/int 1: need flag  2:need int*/
 	u8 flag_addr[2];	/*flag address */
 	u8 flag_val;		/*flag val*/
@@ -440,6 +441,13 @@ static s32 goodix_tool_write(struct file *filp, const char __user *buff, unsigne
 	} else if (15 == cmd_head.wr) {	/*Update firmware!*/
 		show_len = 0;
 		total_len = 0;
+		if ((cmd_head.data == NULL)
+			|| (cmd_head.data_len >= DATA_LENGTH)
+			|| (cmd_head.data_len >= (len - CMD_HEAD_LENGTH))) {
+			GTP_ERROR("copy_from_user data out of range.");
+			return -EINVAL;
+		}
+
 		memset(cmd_head.data, 0, cmd_head.data_len + 1);
 		ret = copy_from_user(cmd_head.data, &buff[CMD_HEAD_LENGTH], cmd_head.data_len);
 		if (ret)

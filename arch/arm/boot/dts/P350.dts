@@ -33,13 +33,13 @@
 &odm {
 	led@0 {
 		compatible = "mediatek,red";
-		led_mode = <0>;
-		data = <1>;
+		led_mode = <3>;
+		data = <2>;
 		pwm_config = <0 0 0 0 0>;
 	};
 	led@1 {
 		compatible = "mediatek,green";
-		led_mode = <0>;
+		led_mode = <3>;
 		data = <1>;
 		pwm_config = <0 0 0 0 0>;
 	};
@@ -69,9 +69,21 @@
 	};
 	led@6 {
 		compatible = "mediatek,lcd-backlight";
+		led_mode = <5>;
+		data = <1>;
+		pwm_config = <0 0 0 0 0>;
+	};
+        led@7 {
+		compatible = "mediatek,hq-torch";
 		led_mode = <1>;
-		data = <2>;
-		pwm_config = <1 1 0 0 0>;
+		data = <1>;
+		pwm_config = <0 0 0 0 0>;
+	};
+        led@8 {
+		compatible = "mediatek,sub-flashlight";
+		led_mode = <1>;
+		data = <1>;
+		pwm_config = <0 0 0 0 0>;
 	};
 	vibrator0:vibrator@0 {
 		compatible = "mediatek,vibrator";
@@ -349,12 +361,12 @@
 &touch {
 	tpd-resolution = <720 1280>;
 	use-tpd-button = <0>;
-	tpd-key-num = <0>;
+	tpd-key-num = <3>;
 	tpd-key-local= <139 172 158 0>;
 	tpd-key-dim-local = <90 883 100 40 230 883 100 40 370 883 100 40 0 0 0 0>;
 	tpd-max-touch-num = <5>;
 	tpd-filter-enable = <1>;
-	tpd-filter-pixel-density = <93>;
+	tpd-filter-pixel-density = <124>;
 	tpd-filter-custom-prameters = <0 0 0 0 0 0 0 0 0 0 0 0>;
 	tpd-filter-custom-speed = <0 0 0>;
 	pinctrl-names = "default", "state_eint_as_int", "state_eint_output0", "state_eint_output1",
@@ -377,13 +389,6 @@
 			bias-disable;
 		};
 	};
- 	ctp_pins_eint_as_int: toucheint@5 {
- 		pins_cmd_dat {
- 			pins = <PINMUX_GPIO5__FUNC_EINT5>;
- 			slew-rate = <0>;
- 			bias-disable;
- 		};
- 	};
 	ctp_pins_eint_output0: eintoutput0 {
 		pins_cmd_dat {
 			pins = <PINMUX_GPIO5__FUNC_GPIO5>;
@@ -415,19 +420,130 @@
 };
 /* TOUCH end */
 
+/* DISPSYS GPIO start */
+&mtkfb {
+	pinctrl-names = "mode_te_gpio", "mode_te_te", "lcm_rst_out0_gpio",
+			"lcm_rst_out1_gpio", "lcd_bias_enn0_gpio", "lcd_bias_enn1_gpio",
+			"lcd_bias_enp0_gpio", "lcd_bias_enp1_gpio", "lcd_power_enable0_gpio", "lcd_power_enable1_gpio";
+	pinctrl-0 = <&mtkfb_pins_mode_te_gpio>;
+	pinctrl-1 = <&mtkfb_pins_mode_te_te>;
+	pinctrl-2 = <&mtkfb_pins_lcm_reset0>;
+	pinctrl-3 = <&mtkfb_pins_lcm_reset1>;
+	pinctrl-4 = <&mtkfb_pins_lcd_bias_enn0>;
+	pinctrl-5 = <&mtkfb_pins_lcd_bias_enn1>;
+	pinctrl-6 = <&mtkfb_pins_lcd_bias_enp0>;
+	pinctrl-7 = <&mtkfb_pins_lcd_bias_enp1>;
+   /*	pinctrl-8 = <&mtkfb_pins_lcd_power_en0>;
+	pinctrl-9 = <&mtkfb_pins_lcd_power_en1>; */
+	status = "okay";
+};
+&pio {
+	mtkfb_pins_mode_te_gpio: mode_te_gpio {
+		pins_cmd_dat {
+			pins = <PINMUX_GPIO68__FUNC_DSI_TE>;
+		};
+	};
+	mtkfb_pins_mode_te_te: mode_te_te {
+		pins_cmd_dat {
+			pins = <PINMUX_GPIO68__FUNC_DSI_TE>;
+		};
+	};
+	mtkfb_pins_lcm_reset0: lcm_rst_out0_gpio {
+		pins_cmd_dat {
+			pins = <PINMUX_GPIO70__FUNC_GPIO70>;
+			slew-rate = <1>;
+			output-low;
+		};
+	};
+	mtkfb_pins_lcm_reset1: lcm_rst_out1_gpio {
+		pins_cmd_dat {
+			pins = <PINMUX_GPIO70__FUNC_GPIO70>;
+			slew-rate = <1>;
+			output-high;
+		};
+	};
+	mtkfb_pins_lcd_bias_enn0: lcd_bias_enn0_gpio {
+		pins_cmd_dat {
+			pins = <PINMUX_GPIO18__FUNC_GPIO18>;
+			slew-rate = <1>;
+			output-low;
+		};
+	};
+	mtkfb_pins_lcd_bias_enn1: lcd_bias_enn1_gpio {
+		pins_cmd_dat {
+			pins = <PINMUX_GPIO18__FUNC_GPIO18>;
+			slew-rate = <1>;
+			output-high;
+		};
+	};
+	mtkfb_pins_lcd_bias_enp0: lcd_bias_enp0_gpio {
+		pins_cmd_dat {
+			pins = <PINMUX_GPIO11__FUNC_GPIO11>;
+			slew-rate = <1>;
+			output-low;
+		};
+	};
+	mtkfb_pins_lcd_bias_enp1: lcd_bias_enp1_gpio {
+		pins_cmd_dat {
+			pins = <PINMUX_GPIO11__FUNC_GPIO11>;
+			slew-rate = <1>;
+			output-high;
+		};
+	};
+};
+/* DISPSYS GPIO end */
+/*lcd_bais pinctrl start*/
+&lcd_bais {
+	pinctrl-names = "lcd_bias_enn_low", "lcd_bias_enn_high",
+									"lcd_bias_enp_low", "lcd_bias_enp_high";
+	pinctrl-0 = <&lcd_bias_enn0>;
+	pinctrl-1 = <&lcd_bias_enn1>;
+	pinctrl-2 = <&lcd_bias_enp0>;
+	pinctrl-3 = <&lcd_bias_enp1>;
+	status = "okay";
+};
+&pio {
+	lcd_bias_enn0: lcd_bias_enn_low {
+		pins_cmd_dat {
+			pins = <PINMUX_GPIO18__FUNC_GPIO18>;
+			slew-rate = <1>;
+			output-low;
+		};
+	};
+	lcd_bias_enn1: lcd_bias_enn_high {
+		pins_cmd_dat {
+			pins = <PINMUX_GPIO18__FUNC_GPIO18>;
+			slew-rate = <1>;
+			output-high;
+		};
+	};
+	lcd_bias_enp0: lcd_bias_enp_low {
+		pins_cmd_dat {
+			pins = <PINMUX_GPIO11__FUNC_GPIO11>;
+			slew-rate = <1>;
+			output-low;
+		};
+	};
+	lcd_bias_enp1: lcd_bias_enp_high {
+		pins_cmd_dat {
+			pins = <PINMUX_GPIO11__FUNC_GPIO11>;
+			slew-rate = <1>;
+			output-high;
+		};
+	};
+};
+/*lcd_bais pinctrl end*/
 /* AUDIO GPIO standardization */
 &audgpio {
-	pinctrl-names = "default", "audpmicclk-mode0", "audpmicclk-mode1",
-			"extamp-pullhigh", "extamp-pulllow",
-			"extamp2-pullhigh", "extamp2-pulllow";
+	pinctrl-names = "default", "audpmicclk-mode0", "audpmicclk-mode1", "audi2s1-mode0", "audi2s1-mode1", "extamp-pullhigh", "extamp-pulllow";
 	pinctrl-0 = <&AUD_pins_default>;
- 	pinctrl-1 = <&AUD_pins_pmicclk_mode0>;
- 	pinctrl-2 = <&AUD_pins_pmicclk_mode1>;
-	pinctrl-3 = <&AUD_pins_extamp_high>;
-	pinctrl-4 = <&AUD_pins_extamp_low>;
-	pinctrl-5 = <&AUD_pins_extamp2_high>;
-	pinctrl-6 = <&AUD_pins_extamp2_low>;
- 	status = "okay";
+	pinctrl-1 = <&AUD_pins_pmicclk_mode0>;
+	pinctrl-2 = <&AUD_pins_pmicclk_mode1>;
+	pinctrl-3 = <&AUD_pins_i2s1_mode0>;
+	pinctrl-4 = <&AUD_pins_i2s1_mode1>;
+	pinctrl-5 = <&AUD_pins_extamp_high>;
+	pinctrl-6 = <&AUD_pins_extamp_low>;
+	status = "okay";
 };
 &pio {
 	AUD_pins_default: audiodefault {
@@ -454,28 +570,27 @@
 			pins = <PINMUX_GPIO27__FUNC_AUD_DAT_MOSI>;
 		};
 	};
-	AUD_pins_extamp_high:extampouthigh {
-
+	AUD_pins_i2s1_mode0: audi2s1mode0 {
+	};
+	AUD_pins_i2s1_mode1: audi2s1mode1 {
+	};
+	AUD_pins_extamp_high: audexamphigh {
 		pins_cmd_dat {
-			pins = <PINMUX_GPIO15__FUNC_GPIO15>;
-			slew-rate = <1>;
-			output-high;
+			pins = <PINMUX_GPIO12__FUNC_GPIO12>;
+				slew-rate = <1>;
+				output-high;
 		};
 	};
-	AUD_pins_extamp_low:extampoutlow {
-
+	AUD_pins_extamp_low: audexamplow {
 		pins_cmd_dat {
-			pins = <PINMUX_GPIO15__FUNC_GPIO15>;
-			slew-rate = <1>;
-			output-low;
+			pins = <PINMUX_GPIO12__FUNC_GPIO12>;
+				slew-rate = <1>;
+				output-low;
 		};
-	};
-	AUD_pins_extamp2_high:extamp2outhigh {
-	};
-	AUD_pins_extamp2_low:extamp2outlow {
 	};
 };
 /* AUDIO end */
+
 
 /* DISPSYS GPIO standardization */
 &pio {

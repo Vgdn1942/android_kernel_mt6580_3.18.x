@@ -1,16 +1,3 @@
-/*
- * Copyright (C) 2015 MediaTek Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- */
-
 /*****************************************************************************
  *
  * Filename:
@@ -417,7 +404,7 @@ static void set_dummy(void)
 
 static kal_uint32 return_sensor_id(void)
 {
-	return (((read_cmos_sensor(0x0002)&0x0f)<<8) | (read_cmos_sensor(0x0003)));
+    return (((read_cmos_sensor(0x0002)&&0x0f)<<8)  | (read_cmos_sensor(0x0003)) );;
 }
 static void set_max_framerate(UINT16 framerate,kal_bool min_framelength_en)
 {

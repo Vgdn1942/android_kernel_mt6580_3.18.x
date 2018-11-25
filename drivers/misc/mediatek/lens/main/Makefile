@@ -26,3 +26,4 @@ obj-$(CONFIG_MTK_LENS)    += main_lens.o
 
 obj-$(CONFIG_MTK_LENS_DW9714AF_SUPPORT)      += common/dw9714af/
 obj-$(CONFIG_MTK_LENS_BU6424AF_SUPPORT)      += common/bu6424af/
+obj-$(CONFIG_MTK_LENS_GT9761AF_SUPPORT)      += common/gt9761af/

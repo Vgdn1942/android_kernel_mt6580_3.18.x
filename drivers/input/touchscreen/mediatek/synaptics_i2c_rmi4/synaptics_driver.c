@@ -1,23 +1,3 @@
-/*
- * Synaptics DSX touchscreen driver
- *
- * Copyright (C) 2012 Synaptics Incorporated
- *
- * Copyright (C) 2012 Alexandra Chin <alexandra.chin@tw.synaptics.com>
- * Copyright (C) 2012 Scott Lin <scott.lin@tw.synaptics.com>
- * Copyright (C) 2010 Js HA <js.ha@stericsson.com>
- * Copyright (C) 2010 Naveen Kumar G <naveen.gaddipati@stericsson.com>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- */
 
 #include <linux/interrupt.h>
 
@@ -53,7 +33,6 @@
 
 
 
-/* DTS2012031404176 linghai 20120314 end */
 /* add by huxin */
 #ifdef HAVE_TOUCH_KEY
 const u16 touch_key_array[] = { KEY_MENU, KEY_HOMEPAGE, KEY_BACK };
@@ -140,10 +119,8 @@ static int tpd_clear_interrupt(struct i2c_client *client);
 
 static const struct i2c_device_id tpd_id[] = { {TPD_DEVICE, 0}, {} };
 
-/* DTS2012040603460 gkf61766 20120406 begin */
 static unsigned short force[] = { 0, 0x40, I2C_CLIENT_END, I2C_CLIENT_END };
 
-/* DTS2012040603460 gkf61766 20120406 end */
 static const unsigned short *const forces[] = { force, NULL };
 
 /* static struct i2c_client_address_data addr_data = { .forces = forces, }; */

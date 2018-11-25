@@ -1,16 +1,3 @@
-/*
- * Copyright (C) 2015 MediaTek Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- */
-
 /*****************************************************************************
  *
  * Filename:
@@ -356,6 +343,8 @@ static kal_uint16 gain2reg(const kal_uint16 gain)
 static kal_uint16 set_gain(kal_uint16 gain)
 {
 	kal_uint16 reg_gain;
+	kal_uint16 iGain =1;
+	kal_uint8 ChangeFlag=0x07;
 
 	/* 0x350A[0:1], 0x350B[0:7] AGC real gain */
 	/* [0:3] = N meams N /16 X	*/
@@ -372,12 +361,26 @@ static kal_uint16 set_gain(kal_uint16 gain)
 			gain = 8 * BASEGAIN;
 		}
 
+		iGain = gain/BASEGAIN;
+
+		if(iGain<2){
+			ChangeFlag= 0x00;
+		}
+		else if(iGain<4){
+			ChangeFlag= 0x01;
+		}
+		else if(iGain<8){
+			ChangeFlag= 0x03;
+		}
+		else{
+			ChangeFlag= 0x07;
+		}
 
 	reg_gain = gain2reg(gain);
 	spin_lock(&imgsensor_drv_lock);
 	imgsensor.gain = reg_gain;
 	spin_unlock(&imgsensor_drv_lock);
-	LOG_INF("gain = %d, reg_gain = 0x%x\n ", gain, reg_gain);
+	LOG_INF("gain = %d ,reg[0x366a]= %d, reg_gain = 0x%x\n ", gain, ChangeFlag, reg_gain);
 /*
 	write_cmos_sensor(0x301d, 0xf0);
 	write_cmos_sensor(0x3209, 0x00);
@@ -401,10 +404,9 @@ static kal_uint16 set_gain(kal_uint16 gain)
 	write_cmos_sensor(0x3208, 0xA1);
 	*/
 	write_cmos_sensor(0x3208, 0x00);
-	write_cmos_sensor(0x366a, 0x07/*ChangeFlag*/);
-	/*vendor suggest 0x366a is fix to 0x07*/
+	write_cmos_sensor(0x366a, ChangeFlag);
 	write_cmos_sensor(0x3508, reg_gain >> 8);
-	write_cmos_sensor(0x3509, reg_gain & 0xFF);
+	write_cmos_sensor(0x3509, reg_gain & 0xFF);    
 	write_cmos_sensor(0x3208, 0x10);
 	write_cmos_sensor(0x3208, 0xA0);
 	return gain;
@@ -1449,7 +1451,7 @@ static kal_uint32 get_info(MSDK_SCENARIO_ID_ENUM scenario_id,
 					  MSDK_SENSOR_INFO_STRUCT *sensor_info,
 					  MSDK_SENSOR_CONFIG_STRUCT *sensor_config_data)
 {
-	/*LOG_INF("scenario_id = %d\n", scenario_id);*/
+	LOG_INF("scenario_id = %d\n", scenario_id);
 
 
 	//sensor_info->SensorVideoFrameRate = imgsensor_info.normal_video.max_framerate/10; /* not use */
