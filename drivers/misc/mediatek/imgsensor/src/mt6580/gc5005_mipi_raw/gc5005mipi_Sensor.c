@@ -10,7 +10,7 @@
  *
  * Description:
  * ------------
- *     Source code of Sensor driver 
+ *     Source code of Sensor driver
  *
  *
  *------------------------------------------------------------------------------
@@ -40,14 +40,14 @@
 #include <asm-generic/gpio.h>
 extern int camera_dsm_report_err(int errno);
 #endif
- 
+
 #define GC5005_DEFAULT_DUMMY_PIXEL_NUMS   0x1c5 // HB
 #define GC5005_DEFAULT_DUMMY_LINE_NUMS    0x10 //VB
 
 static kal_uint32 Basic_Dummy_Line = GC5005_DEFAULT_DUMMY_LINE_NUMS;//travis
-#if HQ_ANTI_CAMERA_INTERACT
-	extern UsedSubCameraType g_CurrUsedSubCameraName;
-#endif
+//#if HQ_ANTI_CAMERA_INTERACT
+//	extern UsedSubCameraType g_CurrUsedSubCameraName;
+//#endif
 /****************************Modify Following Strings for Debug****************************/
 #define PFX "GC5005_camera_sensor"
 #define LOG_1 LOG_INF("GC5005,MIPI 2LANE\n")
@@ -179,11 +179,11 @@ static imgsensor_struct imgsensor = {
 /* Sensor output window information */
 static SENSOR_WINSIZE_INFO_STRUCT imgsensor_winsize_info[5] =
 {
-	{ 2592, 1944,	 0,    0, 2592, 1944, 2592,  1944, 0000, 0000, 2592,  1944, 	 0,    0, 2592,  1944}, // Preview 
-	{ 2592, 1944,	 0,    0, 2592, 1944, 2592,  1944, 0000, 0000, 2592,  1944, 	 0,    0, 2592,  1944}, // capture 
-	{ 2592, 1944,	 0,    0, 2592, 1944, 2592,  1944, 0000, 0000, 2592,  1944, 	 0,    0, 2592,  1944}, // video 
-	{ 2592, 1944,	 0,    0, 2592, 1944, 2592,  1944, 0000, 0000, 2592,  1944, 	 0,    0, 2592,  1944}, //hight speed video 
-	{ 2592, 1944,	 0,    0, 2592, 1944, 2592,  1944, 0000, 0000, 2592,  1944, 	 0,    0, 2592,  1944}};// slim video 
+	{ 2592, 1944,	 0,    0, 2592, 1944, 2592,  1944, 0000, 0000, 2592,  1944, 	 0,    0, 2592,  1944}, // Preview
+	{ 2592, 1944,	 0,    0, 2592, 1944, 2592,  1944, 0000, 0000, 2592,  1944, 	 0,    0, 2592,  1944}, // capture
+	{ 2592, 1944,	 0,    0, 2592, 1944, 2592,  1944, 0000, 0000, 2592,  1944, 	 0,    0, 2592,  1944}, // video
+	{ 2592, 1944,	 0,    0, 2592, 1944, 2592,  1944, 0000, 0000, 2592,  1944, 	 0,    0, 2592,  1944}, //hight speed video
+	{ 2592, 1944,	 0,    0, 2592, 1944, 2592,  1944, 0000, 0000, 2592,  1944, 	 0,    0, 2592,  1944}};// slim video
 
 
 
@@ -233,18 +233,18 @@ typedef struct otp_gc5005{
 	kal_uint16 rg_gain;
 	kal_uint16 bg_gain;
 	kal_uint16 wb_flag;
-	kal_uint16 golden_flag;	
+	kal_uint16 golden_flag;
 	kal_uint16 dd_param_x[DD_PARAM_QTY];
 	kal_uint16 dd_param_y[DD_PARAM_QTY];
 	kal_uint16 dd_param_type[DD_PARAM_QTY];
 	kal_uint16 dd_cnt;
 	kal_uint16 dd_flag;
 	kal_uint16 golden_rg;
-	kal_uint16 golden_bg;	
-	kal_uint16 gc_flag;		
+	kal_uint16 golden_bg;
+	kal_uint16 gc_flag;
 	kal_uint16 Vald1;
 	kal_uint16 Val21;
-	kal_uint16 Val29;		
+	kal_uint16 Val29;
 }gc5005_otp;
 
 static gc5005_otp gc5005_otp_info;
@@ -274,7 +274,7 @@ static kal_uint8 gc5005_read_otp(kal_uint8 addr)
 static void gc5005_select_page_otp(otp_page otp_select_page)
 {
 	kal_uint8 page;
-	
+
 	write_cmos_sensor(0xfe,0x00);
 	page = read_cmos_sensor(0xd4);
 
@@ -291,7 +291,7 @@ static void gc5005_select_page_otp(otp_page otp_select_page)
 	}
 
 	mdelay(5);
-	write_cmos_sensor(0xd4,page);	
+	write_cmos_sensor(0xd4,page);
 
 }
 
@@ -300,7 +300,7 @@ static void gc5005_gcore_read_otp_info(void)
 	kal_uint8 flag0,flag1,flag_golden;
 	kal_uint8 index,i,j,cnt=0;
 	kal_uint8 info_start_add,wb_start_add,golden_start_add;
-	kal_uint8 total_number0=0,total_number1=0,total_number=0; 
+	kal_uint8 total_number0=0,total_number1=0,total_number=0;
 	kal_uint8 check_dd_flag,type;
 	kal_uint8 dd0=0,dd1=0,dd2=0;
 	kal_uint16 x,y;
@@ -312,7 +312,7 @@ static void gc5005_gcore_read_otp_info(void)
 	flag0 = gc5005_read_otp(0x00);
 	total_number0 = gc5005_read_otp(0x01) + gc5005_read_otp(0x02);
 	LOG_INF("GC5005_OTP : flag0 = 0x%x , total_number0 = %d\n",flag0,total_number0);
-	
+
 	gc5005_select_page_otp(otp_page1);
 	total_number1 = gc5005_read_otp(0x28) + gc5005_read_otp(0x29);
 	LOG_INF("GC5005_OTP : total_number1 = %d\n",total_number1);
@@ -321,7 +321,7 @@ static void gc5005_gcore_read_otp_info(void)
 	gc5005_otp_info.gc_flag = (flag0>>2)&0x03;
 	LOG_INF("GC5005_OTP : gc5005_otp_info.gc_flag = 0x%x \n",gc5005_otp_info.gc_flag);
 
-	if(gc5005_otp_info.gc_flag==0x01) 
+	if(gc5005_otp_info.gc_flag==0x01)
 	{
 		gc5005_otp_info.Vald1=0xb0;
 		gc5005_otp_info.Val21=0x08;
@@ -341,39 +341,39 @@ static void gc5005_gcore_read_otp_info(void)
 		LOG_INF("GC5005_OTP_DD is Empty !!\n");
 		gc5005_otp_info.dd_flag = 0x00;
 		break;
-	case 0x01:	
+	case 0x01:
 		LOG_INF("GC5005_OTP_DD is Valid!!\n");
-		
+
 		gc5005_select_page_otp(otp_page0);
 		dd_rom_start=0x03;
 		offset = 0;
-		
-		total_number = (total_number1>=total_number0) ? total_number1 : total_number0;			
+
+		total_number = (total_number1>=total_number0) ? total_number1 : total_number0;
 		LOG_INF("GC5005_OTP_DD total_number=%d!!\n",total_number);
-		
+
 		for(i=0; i<total_number; i++)
 		{
 			if(i==31)
 			{
-				gc5005_select_page_otp(otp_page1);			
+				gc5005_select_page_otp(otp_page1);
 				dd_rom_start=0x2a;
 				offset = 31;
-			}	
-		
+			}
+
 			check_dd_flag = gc5005_read_otp(dd_rom_start + 4*(i-offset) + 3);
-				
+
 			if(check_dd_flag&0x10)
 			{//Read OTP
 				type = check_dd_flag&0x0f;
-		
+
 				dd0 = gc5005_read_otp(dd_rom_start + 4*(i-offset));
-				dd1 = gc5005_read_otp(dd_rom_start + 4*(i-offset) + 1); 	
+				dd1 = gc5005_read_otp(dd_rom_start + 4*(i-offset) + 1);
 				dd2 = gc5005_read_otp(dd_rom_start + 4*(i-offset) + 2);
 				x = ((dd1&0x0f)<<8) + dd0;
 				y = (dd2<<4) + ((dd1&0xf0)>>4);
 				LOG_INF("GC5005_OTP_DD : type = %d , x = %d , y = %d \n",type,x,y);
 				LOG_INF("GC5005_OTP_DD : dd0 = %d , dd1 = %d , dd2 = %d \n",dd0,dd1,dd2);
-				
+
 				if(type == 3)
 				{
 					for(j=0; j<4; j++)
@@ -409,7 +409,7 @@ static void gc5005_gcore_read_otp_info(void)
 		gc5005_otp_info.dd_flag = 0x01;
 		break;
 	case 0x02:
-	case 0x03:	
+	case 0x03:
 		LOG_INF("GC5005_OTP_DD is Invalid !!\n");
 		gc5005_otp_info.dd_flag = 0x02;
 		break;
@@ -421,7 +421,7 @@ static void gc5005_gcore_read_otp_info(void)
 	flag1 = gc5005_read_otp(0x00);
 	flag_golden = gc5005_read_otp(0x13);
 	LOG_INF("GC5005_OTP : flag1 = 0x%x , flag_golden = 0x%x\n",flag1,flag_golden);
-	
+
 //INFO&WB
 	for(index=0;index<2;index++)
 	{
@@ -433,7 +433,7 @@ static void gc5005_gcore_read_otp_info(void)
 		case 0x01:
 			info_start_add = INFO_ROM_START + index * INFO_WIDTH;
 			gc5005_otp_info.module_id = gc5005_read_otp(info_start_add);
-			gc5005_otp_info.lens_id = gc5005_read_otp(info_start_add + 1); 
+			gc5005_otp_info.lens_id = gc5005_read_otp(info_start_add + 1);
 			gc5005_otp_info.vcm_driver_id = gc5005_read_otp(info_start_add + 2);
 			gc5005_otp_info.vcm_id = gc5005_read_otp(info_start_add + 3);
 			gc5005_otp_info.year = gc5005_read_otp(info_start_add + 4);
@@ -441,13 +441,13 @@ static void gc5005_gcore_read_otp_info(void)
 			gc5005_otp_info.day = gc5005_read_otp(info_start_add + 6);
 			break;
 		case 0x02:
-		case 0x03:	
+		case 0x03:
 			LOG_INF("GC5005_OTP_INFO group%d is Invalid !!\n", index + 1);
 			break;
 		default :
 			break;
 		}
-		
+
 		switch((flag1>>(2 * index))&0x03)
 		{
 		case 0x00:
@@ -455,25 +455,25 @@ static void gc5005_gcore_read_otp_info(void)
 			gc5005_otp_info.wb_flag = gc5005_otp_info.wb_flag|0x00;
 			break;
 		case 0x01:
-			LOG_INF("GC5005_OTP_WB group%d is Valid !!\n", index + 1);						
+			LOG_INF("GC5005_OTP_WB group%d is Valid !!\n", index + 1);
 			wb_start_add = WB_ROM_START + index * WB_WIDTH;
 			gc5005_otp_info.rg_gain = gc5005_read_otp(wb_start_add);
-			gc5005_otp_info.bg_gain = gc5005_read_otp(wb_start_add + 1); 
+			gc5005_otp_info.bg_gain = gc5005_read_otp(wb_start_add + 1);
 
 			if((0==gc5005_otp_info.rg_gain)||(0==gc5005_otp_info.bg_gain))
 			{
 				gc5005_otp_info.wb_flag = gc5005_otp_info.wb_flag|0x02;
-				LOG_INF("GC5005_OTP_WB group%d is Error ,wb rg or bg = 0!!\n", index + 1);							
+				LOG_INF("GC5005_OTP_WB group%d is Error ,wb rg or bg = 0!!\n", index + 1);
 			}
 			else
 			{
 				gc5005_otp_info.wb_flag = gc5005_otp_info.wb_flag|0x01;
 			}
-			
+
 			break;
 		case 0x02:
-		case 0x03:	
-			LOG_INF("GC5005_OTP_WB group%d is Invalid !!\n", index + 1);			
+		case 0x03:
+			LOG_INF("GC5005_OTP_WB group%d is Invalid !!\n", index + 1);
 			gc5005_otp_info.wb_flag = gc5005_otp_info.wb_flag|0x02;
 			break;
 		default :
@@ -484,33 +484,33 @@ static void gc5005_gcore_read_otp_info(void)
 		{
 		case 0x00:
 			LOG_INF("GC5005_OTP_GOLDEN group%d is Empty !!\n", index + 1);
-			gc5005_otp_info.golden_flag = gc5005_otp_info.golden_flag|0x00;					
+			gc5005_otp_info.golden_flag = gc5005_otp_info.golden_flag|0x00;
 			break;
 		case 0x01:
-			LOG_INF("GC5005_OTP_GOLDEN group%d is Valid !!\n", index + 1);						
+			LOG_INF("GC5005_OTP_GOLDEN group%d is Valid !!\n", index + 1);
 			golden_start_add = GOLDEN_ROM_START + index * GOLDEN_WIDTH;
 			gc5005_otp_info.golden_rg= gc5005_read_otp(golden_start_add);
-			gc5005_otp_info.golden_bg = gc5005_read_otp(golden_start_add + 1); 
+			gc5005_otp_info.golden_bg = gc5005_read_otp(golden_start_add + 1);
 
 			if((0==gc5005_otp_info.golden_rg)||(0==gc5005_otp_info.golden_bg))
 			{
 				gc5005_otp_info.golden_flag = gc5005_otp_info.golden_flag|0x02;
-				LOG_INF("GC5005_OTP_GOLDEN group%d is Error,golden rg or bg = 0!!\n", index + 1);							
+				LOG_INF("GC5005_OTP_GOLDEN group%d is Error,golden rg or bg = 0!!\n", index + 1);
 			}
 			else
 			{
-				gc5005_otp_info.golden_flag = gc5005_otp_info.golden_flag|0x01;						
+				gc5005_otp_info.golden_flag = gc5005_otp_info.golden_flag|0x01;
 			}
 
 			break;
 		case 0x02:
-		case 0x03:	
-			LOG_INF("GC5005_OTP_GOLDEN group%d is Invalid !!\n", index + 1);	
-			gc5005_otp_info.golden_flag = gc5005_otp_info.golden_flag|0x02;			
+		case 0x03:
+			LOG_INF("GC5005_OTP_GOLDEN group%d is Invalid !!\n", index + 1);
+			gc5005_otp_info.golden_flag = gc5005_otp_info.golden_flag|0x02;
 			break;
 		default :
 			break;
-		}		
+		}
 	}
 
 	/*print otp information*/
@@ -522,7 +522,7 @@ static void gc5005_gcore_read_otp_info(void)
 	LOG_INF("GC5005_OTP_WB:r/g=0x%x\n",gc5005_otp_info.rg_gain);
 	LOG_INF("GC5005_OTP_WB:b/g=0x%x\n",gc5005_otp_info.bg_gain);
 	LOG_INF("GC5005_OTP_GOLDEN:golden_rg=0x%x\n",gc5005_otp_info.golden_rg);
-	LOG_INF("GC5005_OTP_GOLDEN:golden_bg=0x%x\n",gc5005_otp_info.golden_bg);	
+	LOG_INF("GC5005_OTP_GOLDEN:golden_bg=0x%x\n",gc5005_otp_info.golden_bg);
 }
 
 static void gc5005_gcore_update_dd(void)
@@ -551,7 +551,7 @@ static void gc5005_gcore_update_dd(void)
 		for(i=0; i<gc5005_otp_info.dd_cnt; i++)
 		{
 			if(gc5005_otp_info.dd_param_type[i]==0)
-			{	
+			{
 				gc5005_otp_info.dd_param_x[i]= WINDOW_WIDTH - gc5005_otp_info.dd_param_x[i]+1;
 				gc5005_otp_info.dd_param_y[i]= WINDOW_HEIGHT - gc5005_otp_info.dd_param_y[i]+1;
 			}
@@ -572,20 +572,20 @@ static void gc5005_gcore_update_dd(void)
 #endif
 
 		//y
-		for(i=0 ; i< gc5005_otp_info.dd_cnt-1; i++) 
+		for(i=0 ; i< gc5005_otp_info.dd_cnt-1; i++)
 		{
-			for(j = i+1; j < gc5005_otp_info.dd_cnt; j++) 
-			{  
-				if(gc5005_otp_info.dd_param_y[i] > gc5005_otp_info.dd_param_y[j])  
-				{  
+			for(j = i+1; j < gc5005_otp_info.dd_cnt; j++)
+			{
+				if(gc5005_otp_info.dd_param_y[i] > gc5005_otp_info.dd_param_y[j])
+				{
 					temp_x = gc5005_otp_info.dd_param_x[i] ; gc5005_otp_info.dd_param_x[i] = gc5005_otp_info.dd_param_x[j] ;  gc5005_otp_info.dd_param_x[j] = temp_x;
 					temp_y = gc5005_otp_info.dd_param_y[i] ; gc5005_otp_info.dd_param_y[i] = gc5005_otp_info.dd_param_y[j] ;  gc5005_otp_info.dd_param_y[j] = temp_y;
 					temp_type = gc5005_otp_info.dd_param_type[i] ; gc5005_otp_info.dd_param_type[i] = gc5005_otp_info.dd_param_type[j]; gc5005_otp_info.dd_param_type[j]= temp_type;
-				} 
+				}
 			}
-		
+
 		}
-		
+
 		//x
 		for(i=0; i<gc5005_otp_info.dd_cnt; i++)
 		{
@@ -613,7 +613,7 @@ static void gc5005_gcore_update_dd(void)
 
 		}
 
-		
+
 		//write SRAM
 		write_cmos_sensor(0xfe,0x01);
 		write_cmos_sensor(0xbe,0x00);
@@ -630,7 +630,7 @@ static void gc5005_gcore_update_dd(void)
 			write_cmos_sensor(0xac,temp_val2);
 			write_cmos_sensor(0xac,gc5005_otp_info.dd_param_type[i]);
 			LOG_INF("GC5005_OTP_GC val0 = 0x%x , val1 = 0x%x , val2 = 0x%x \n",temp_val0,temp_val1,temp_val2);
-			LOG_INF("GC5005_OTP_GC x = %d , y = %d \n",((temp_val1&0x0f)<<8) + temp_val0,(temp_val2<<4) + ((temp_val1&0xf0)>>4));	
+			LOG_INF("GC5005_OTP_GC x = %d , y = %d \n",((temp_val1&0x0f)<<8) + temp_val0,(temp_val2<<4) + ((temp_val1&0xf0)>>4));
 		}
 
 		write_cmos_sensor(0xbe,0x01);
@@ -644,7 +644,7 @@ static void gc5005_gcore_update_awb(void)
 {
 	kal_uint16 r_gain_current = 0 , g_gain_current = 0 , b_gain_current = 0 , base_gain = 0;
 	kal_uint16 r_gain = 128 , g_gain = 128 , b_gain = 128 ;
-	kal_uint16 rg_typical,bg_typical;	 
+	kal_uint16 rg_typical,bg_typical;
 
 	rg_typical=RG_TYPICAL;
 	bg_typical=BG_TYPICAL;
@@ -653,11 +653,11 @@ static void gc5005_gcore_update_awb(void)
 	{
 		rg_typical=gc5005_otp_info.golden_rg;
 		bg_typical=gc5005_otp_info.golden_bg;
-		LOG_INF("GC5005_OTP_UPDATE_AWB:rg_typical = 0x%x , bg_typical = 0x%x\n",rg_typical,bg_typical);		
+		LOG_INF("GC5005_OTP_UPDATE_AWB:rg_typical = 0x%x , bg_typical = 0x%x\n",rg_typical,bg_typical);
 	}
 
 	if(0x01==(gc5005_otp_info.wb_flag&0x01))
-	{	
+	{
 		r_gain_current = 256 * rg_typical/gc5005_otp_info.rg_gain;
 		b_gain_current = 256 * bg_typical/gc5005_otp_info.bg_gain;
 		g_gain_current = 256;
@@ -688,7 +688,7 @@ static void gc5005_gcore_update_awb(void)
 static void gc5005_gcore_update_otp(void)
 {
 	gc5005_gcore_update_dd();
-	gc5005_gcore_update_awb();	
+	gc5005_gcore_update_awb();
 }
 
 
@@ -696,18 +696,18 @@ static void gc5005_gcore_enable_otp(otp_state state)
 {
 	kal_uint8 otp_clk,otp_en;
 	otp_clk = read_cmos_sensor(0xfa);
-	otp_en= read_cmos_sensor(0xd4);	
-	if(state)	
-	{ 
+	otp_en= read_cmos_sensor(0xd4);
+	if(state)
+	{
 		otp_clk = otp_clk | 0x10;
 		otp_en = otp_en | 0x80;
 		mdelay(5);
 		write_cmos_sensor(0xfa,otp_clk);	// 0xfa[6]:OTP_CLK_en
-		write_cmos_sensor(0xd4,otp_en);	// 0xd4[7]:OTP_en	
-	
-		LOG_INF("GC5005_OTP: Enable OTP!\n");		
+		write_cmos_sensor(0xd4,otp_en);	// 0xd4[7]:OTP_en
+
+		LOG_INF("GC5005_OTP: Enable OTP!\n");
 	}
-	else			
+	else
 	{
 		otp_en = otp_en & 0x7f;
 		otp_clk = otp_clk & 0xef;
@@ -721,15 +721,15 @@ static void gc5005_gcore_enable_otp(otp_state state)
 }
 
 static void gc5005_gcore_identify_otp(void)
-{	
+{
 	write_cmos_sensor(0xfe, 0x00); //reset related
-	write_cmos_sensor(0xfe, 0x00); 
+	write_cmos_sensor(0xfe, 0x00);
 	write_cmos_sensor(0xfe, 0x00); //modify 1117
-	write_cmos_sensor(0xf7, 0x01); 
+	write_cmos_sensor(0xf7, 0x01);
 	write_cmos_sensor(0xf8, 0x11); //PLL mode2
 	write_cmos_sensor(0xf9, 0xaa);
-	write_cmos_sensor(0xfa, 0x84); 
-	write_cmos_sensor(0xfc, 0x8a); 
+	write_cmos_sensor(0xfa, 0x84);
+	write_cmos_sensor(0xfc, 0x8a);
 
 	gc5005_gcore_enable_otp(otp_open);
 	gc5005_gcore_read_otp_info();
@@ -746,7 +746,7 @@ static void set_dummy(void)
 	LOG_INF("dummyline = %d, Basic_Dummy_Line = %d \n", imgsensor.dummy_line, Basic_Dummy_Line);
 
 	hb = imgsensor.dummy_pixel + GC5005_DEFAULT_DUMMY_PIXEL_NUMS;
-	vb = imgsensor.dummy_line + Basic_Dummy_Line;//travis	
+	vb = imgsensor.dummy_line + Basic_Dummy_Line;//travis
 	//vb = imgsensor.dummy_line + GC5005_DEFAULT_DUMMY_LINE_NUMS;	//dummy line and shutter need 4X-align
 
 
@@ -758,7 +758,7 @@ static void set_dummy(void)
 	write_cmos_sensor(0x07, (vb >> 8) & 0xFF);
 	write_cmos_sensor(0x08, vb & 0xFF);
 	//mdelay(50);
-//  end	
+//  end
 }    /*    set_dummy  */
 
 static kal_uint32 return_sensor_id(void)
@@ -778,7 +778,7 @@ static void set_max_framerate(UINT16 framerate,kal_bool min_framelength_en)
     spin_lock(&imgsensor_drv_lock);
     imgsensor.frame_length = (frame_length > imgsensor.min_frame_length) ? frame_length : imgsensor.min_frame_length;
     imgsensor.dummy_line = imgsensor.frame_length - imgsensor.min_frame_length;//2013-1986 = 27
-	
+
     if (imgsensor.frame_length > imgsensor_info.max_frame_length)
     {
         imgsensor.frame_length = imgsensor_info.max_frame_length;
@@ -833,32 +833,32 @@ static void set_shutter(kal_uint16 shutter)
 	// Update Shutter
 	if(shutter > 16383) shutter = 16383;
 	if(shutter < 4) shutter = 4;
-	
+
 	if(shutter <= 500	)
   	{
 		write_cmos_sensor(0xfe, 0x00);
 		write_cmos_sensor(0x32, 0x78);
-		write_cmos_sensor(0xb0, 0x68);		
+		write_cmos_sensor(0xb0, 0x68);
   	}
   	else if(shutter > 550)
 	{
 		write_cmos_sensor(0xfe, 0x00);
 		write_cmos_sensor(0x32, 0xf8);
-		write_cmos_sensor(0xb0, 0x50);		
+		write_cmos_sensor(0xb0, 0x50);
   	}
 
 	//LOG_INF("imgsensor.autoflicker_en =%d, imgsensor.frame_length =%d\n", imgsensor.autoflicker_en,imgsensor.frame_length);
 
-	if(imgsensor.autoflicker_en) 
-	{     
+	if(imgsensor.autoflicker_en)
+	{
 		realtime_fps = imgsensor.pclk / imgsensor.line_length * 10 / imgsensor.frame_length;//54000000/906*10/1986
-		
+
 		if(realtime_fps >= 297 && realtime_fps <= 305)
 			set_max_framerate(296,0);
 		else if(realtime_fps >= 147 && realtime_fps <= 150)
 			set_max_framerate(146,0);
-		else 
-			set_max_framerate(realtime_fps,0);  
+		else
+			set_max_framerate(realtime_fps,0);
 	}
 	else
 	{
@@ -867,7 +867,7 @@ static void set_shutter(kal_uint16 shutter)
 	}
 
 	//Update Shutter
-	write_cmos_sensor(0xfe, 0x00);	
+	write_cmos_sensor(0xfe, 0x00);
 	write_cmos_sensor(0x03, (shutter>>8) & 0x3F);
 	write_cmos_sensor(0x04, shutter & 0xFF);
 
@@ -919,7 +919,7 @@ static kal_uint16 gain2reg(const kal_uint16 gain)
 static kal_uint16 set_gain(kal_uint16 gain)
 {
 	kal_uint16 iReg,temp;
-	
+
 //	write_cmos_sensor(0xb1, 0x01);
 //	write_cmos_sensor(0xb2, 0x00);
 
@@ -931,16 +931,16 @@ static kal_uint16 set_gain(kal_uint16 gain)
 	if((ANALOG_GAIN_1<= iReg)&&(iReg < ANALOG_GAIN_2))
 		{
 			write_cmos_sensor(0xfe, 0x00);
-		       #ifdef GC5005_MIPI_USE_OTP		
+		       #ifdef GC5005_MIPI_USE_OTP
 			write_cmos_sensor(0x21, gc5005_otp_info.Val21);
 			write_cmos_sensor(0x29, gc5005_otp_info.Val29);
                          #else
 			write_cmos_sensor(0x21, 0x0a);
 			write_cmos_sensor(0x29, 0x22);
-                         #endif	
+                         #endif
 		write_cmos_sensor(0xd8, 0x08);//04
 			write_cmos_sensor(0xe8, 0x00);
-			write_cmos_sensor(0xec, 0x00); 
+			write_cmos_sensor(0xec, 0x00);
 			//analog gain
 			write_cmos_sensor(0xb6,  0x00); //by liting[2:0]AG_sel
 			temp = iReg;
@@ -949,7 +949,7 @@ static kal_uint16 set_gain(kal_uint16 gain)
 			LOG_INF("GC5005MIPI analogic gain 1x, GC5005MIPI add pregain = %d\n",temp);
 		}
 		else if((ANALOG_GAIN_2<= iReg)&&(iReg < ANALOG_GAIN_3))
-	{                                    
+	{
 		write_cmos_sensor(0xfe, 0x00);
 		write_cmos_sensor(0x21, 0x0a);
 		write_cmos_sensor(0x29, 0x22);
@@ -958,7 +958,7 @@ static kal_uint16 set_gain(kal_uint16 gain)
 		write_cmos_sensor(0xec, 0x01);//00
 
 		//analog gain
-			write_cmos_sensor(0xb6,  0x01);// 
+			write_cmos_sensor(0xb6,  0x01);//
 			temp = 64*iReg/ANALOG_GAIN_2;//ANALOG_GAIN_2
 			write_cmos_sensor(0xb1, temp>>6);
 			write_cmos_sensor(0xb2, (temp<<2)&0xfc);
@@ -966,13 +966,13 @@ static kal_uint16 set_gain(kal_uint16 gain)
 	}
 	else if((ANALOG_GAIN_3<= iReg)&&(iReg < ANALOG_GAIN_4))
 	{
- 		write_cmos_sensor(0xfe, 0x00); 
+ 		write_cmos_sensor(0xfe, 0x00);
 		write_cmos_sensor(0x21, 0x16);
 		write_cmos_sensor(0x29, 0x28);
 		write_cmos_sensor(0xd8, 0x12);
 		write_cmos_sensor(0xe8, 0x01);//00
 		write_cmos_sensor(0xec, 0x01);//00
- 	
+
 			//analog gain
 			write_cmos_sensor(0xb6,  0x02);//
 			temp = 64*iReg/ANALOG_GAIN_3;//ANALOG_GAIN_3
@@ -982,13 +982,13 @@ static kal_uint16 set_gain(kal_uint16 gain)
 	}
 	else if((ANALOG_GAIN_4<= iReg)&&(iReg < ANALOG_GAIN_5))
 	{
-		write_cmos_sensor(0xfe, 0x00);  
+		write_cmos_sensor(0xfe, 0x00);
 		write_cmos_sensor(0x21, 0x16);
 		write_cmos_sensor(0x29, 0x28);
 		write_cmos_sensor(0xd8, 0x12);
 		write_cmos_sensor(0xe8, 0x01);//00
 		write_cmos_sensor(0xec, 0x01);//00
-		
+
 		//analog gain
 		write_cmos_sensor(0xb6,  0x03);//
 		temp = 64*iReg/ANALOG_GAIN_4;
@@ -1014,9 +1014,9 @@ static kal_uint16 set_gain(kal_uint16 gain)
 	}
 	else if((ANALOG_GAIN_6<= iReg)&&(iReg < ANALOG_GAIN_7))
 	{
-		write_cmos_sensor(0xfe, 0x00);  
-		write_cmos_sensor(0x21, 0x16);  
-		write_cmos_sensor(0x29, 0x28);  
+		write_cmos_sensor(0xfe, 0x00);
+		write_cmos_sensor(0x21, 0x16);
+		write_cmos_sensor(0x29, 0x28);
 		write_cmos_sensor(0xd8, 0x12);
 		write_cmos_sensor(0xe8, 0x01);
 		write_cmos_sensor(0xec, 0x01);
@@ -1045,21 +1045,21 @@ static kal_uint16 set_gain(kal_uint16 gain)
 		LOG_INF("GC5005MIPI analogic gain 8.569x , GC5005MIPI add pregain = %d\n",temp);
 	}
 	else
-	{                                                                                                                                                                                  
-		write_cmos_sensor(0xfe, 0x00);                                                         
-		write_cmos_sensor(0x21, 0x16);                                                         
-		write_cmos_sensor(0x29, 0x28);                                                         
+	{
+		write_cmos_sensor(0xfe, 0x00);
+		write_cmos_sensor(0x21, 0x16);
+		write_cmos_sensor(0x29, 0x28);
 		write_cmos_sensor(0xd8, 0x12);
 		write_cmos_sensor(0xe8, 0x01);
 		write_cmos_sensor(0xec, 0x01);
 
 		//analog gain
-		write_cmos_sensor(0xb6,  0x07);//                                                       
-		temp = 64*iReg/ANALOG_GAIN_8;                                                           
-		write_cmos_sensor(0xb1, temp>>6);                                                       
-		write_cmos_sensor(0xb2, (temp<<2)&0xfc);                                                
+		write_cmos_sensor(0xb6,  0x07);//
+		temp = 64*iReg/ANALOG_GAIN_8;
+		write_cmos_sensor(0xb1, temp>>6);
+		write_cmos_sensor(0xb2, (temp<<2)&0xfc);
 		LOG_INF("GC5005MIPI analogic gain 11.69x , GC5005MIPI add pregain = %d\n",temp);
-	}                                                                                         
+	}
 
 	return gain;
 
@@ -1112,102 +1112,102 @@ static void sensor_init(void)
 	write_cmos_sensor(0xf8, 0x11); ///pll mode
 	write_cmos_sensor(0xf9, 0xaa);
 	write_cmos_sensor(0xfa, 0x84); //84//80
-	write_cmos_sensor(0xfc, 0x8a); 
-	write_cmos_sensor(0xfe, 0x03); 
-	write_cmos_sensor(0x10, 0x01); 	
+	write_cmos_sensor(0xfc, 0x8a);
+	write_cmos_sensor(0xfe, 0x03);
+	write_cmos_sensor(0x10, 0x01);
 	write_cmos_sensor(0xfc, 0x8e);
-	write_cmos_sensor(0xfe, 0x00); 
-	write_cmos_sensor(0xfe, 0x00); 
-	write_cmos_sensor(0xfe, 0x00); 
+	write_cmos_sensor(0xfe, 0x00);
+	write_cmos_sensor(0xfe, 0x00);
+	write_cmos_sensor(0xfe, 0x00);
 	write_cmos_sensor(0x88, 0x03); //AEC delay
-	write_cmos_sensor(0xe7, 0xc0); 
+	write_cmos_sensor(0xe7, 0xc0);
 	/*Analog*/
-	write_cmos_sensor(0xfe, 0x00); 
-	write_cmos_sensor(0x03, 0x06); 
-	write_cmos_sensor(0x04, 0xfc); 
-	write_cmos_sensor(0x05, 0x01); 
-	write_cmos_sensor(0x06, 0xc5); 
-	write_cmos_sensor(0x07, 0x00); 
-	write_cmos_sensor(0x08, 0x10); 
-	write_cmos_sensor(0x09, 0x00); 
-	write_cmos_sensor(0x0a, 0x14); 
-	write_cmos_sensor(0x0b, 0x00); 
+	write_cmos_sensor(0xfe, 0x00);
+	write_cmos_sensor(0x03, 0x06);
+	write_cmos_sensor(0x04, 0xfc);
+	write_cmos_sensor(0x05, 0x01);
+	write_cmos_sensor(0x06, 0xc5);
+	write_cmos_sensor(0x07, 0x00);
+	write_cmos_sensor(0x08, 0x10);
+	write_cmos_sensor(0x09, 0x00);
+	write_cmos_sensor(0x0a, 0x14);
+	write_cmos_sensor(0x0b, 0x00);
 	write_cmos_sensor(0x0c, 0x10);
-	write_cmos_sensor(0x0d, 0x07); 
-	write_cmos_sensor(0x0e, 0xa0); 
-	write_cmos_sensor(0x0f, 0x0a); 
+	write_cmos_sensor(0x0d, 0x07);
+	write_cmos_sensor(0x0e, 0xa0);
+	write_cmos_sensor(0x0f, 0x0a);
 	write_cmos_sensor(0x10, 0x30);
-	//write_cmos_sensor(0x11, 0x30);  
-	//write_cmos_sensor(0x12, 0x25); 
-	//write_cmos_sensor(0x13, 0x14); 
+	//write_cmos_sensor(0x11, 0x30);
+	//write_cmos_sensor(0x12, 0x25);
+	//write_cmos_sensor(0x13, 0x14);
 	write_cmos_sensor(0x17, MIRROR); // MIRROR
-	write_cmos_sensor(0x18, 0x02); 
+	write_cmos_sensor(0x18, 0x02);
 	write_cmos_sensor(0x19, 0x0a);
-	write_cmos_sensor(0x1a, 0x1b); 
-	write_cmos_sensor(0x1c, 0x0c); 
-	write_cmos_sensor(0x1d, 0x19); 
-	write_cmos_sensor(0x21, 0x16); 
-	write_cmos_sensor(0x24, 0xb0); 
-	write_cmos_sensor(0x25, 0xc1); 
-	write_cmos_sensor(0x27, 0x64); 
-	write_cmos_sensor(0x29, 0x28); 
-	write_cmos_sensor(0x2a, 0xc3); 
+	write_cmos_sensor(0x1a, 0x1b);
+	write_cmos_sensor(0x1c, 0x0c);
+	write_cmos_sensor(0x1d, 0x19);
+	write_cmos_sensor(0x21, 0x16);
+	write_cmos_sensor(0x24, 0xb0);
+	write_cmos_sensor(0x25, 0xc1);
+	write_cmos_sensor(0x27, 0x64);
+	write_cmos_sensor(0x29, 0x28);
+	write_cmos_sensor(0x2a, 0xc3);
 
 	write_cmos_sensor(0x31, 0x40);
-	write_cmos_sensor(0x32, 0xf8); 
-	write_cmos_sensor(0xcd, 0xca); 
-	write_cmos_sensor(0xce, 0xff); 
-	write_cmos_sensor(0xcf, 0x70); 
-	write_cmos_sensor(0xd0, 0xd2); 
-	//write_cmos_sensor(0xd2, 0xc3); 
-	#ifdef GC5005_MIPI_USE_OTP	                                                                                                  
-		write_cmos_sensor(0xd1, gc5005_otp_info.Vald1); 
+	write_cmos_sensor(0x32, 0xf8);
+	write_cmos_sensor(0xcd, 0xca);
+	write_cmos_sensor(0xce, 0xff);
+	write_cmos_sensor(0xcf, 0x70);
+	write_cmos_sensor(0xd0, 0xd2);
+	//write_cmos_sensor(0xd2, 0xc3);
+	#ifdef GC5005_MIPI_USE_OTP
+		write_cmos_sensor(0xd1, gc5005_otp_info.Vald1);
          #else
-		write_cmos_sensor(0xd1, 0xa0); 
-         #endif	                                                                                                        
-	write_cmos_sensor(0xd3, 0x23); 
- 	write_cmos_sensor(0xd8, 0x12); 
-	write_cmos_sensor(0xdc, 0xb3); 
+		write_cmos_sensor(0xd1, 0xa0);
+         #endif
+	write_cmos_sensor(0xd3, 0x23);
+ 	write_cmos_sensor(0xd8, 0x12);
+	write_cmos_sensor(0xdc, 0xb3);
 	write_cmos_sensor(0xe1, 0x1b);
-	write_cmos_sensor(0xe2, 0x00); 
+	write_cmos_sensor(0xe2, 0x00);
 
 	write_cmos_sensor(0xe4, 0x78);
-	write_cmos_sensor(0xe6, 0x1f); 
-	write_cmos_sensor(0xe7, 0xc0); 
- 
-	write_cmos_sensor(0xe8, 0x01); 
-	write_cmos_sensor(0xe9, 0x02); 
-	write_cmos_sensor(0xec, 0x01); 
-	write_cmos_sensor(0xed, 0x02); 
+	write_cmos_sensor(0xe6, 0x1f);
+	write_cmos_sensor(0xe7, 0xc0);
+
+	write_cmos_sensor(0xe8, 0x01);
+	write_cmos_sensor(0xe9, 0x02);
+	write_cmos_sensor(0xec, 0x01);
+	write_cmos_sensor(0xed, 0x02);
 	/*ISP*/
-	write_cmos_sensor(0x80, 0x50); 
-	write_cmos_sensor(0x90, 0x01);                                                                                                                              
-	write_cmos_sensor(0x92, STARTY);//Don't Change Here!!!   crop_win_y1[7:0]                                     
-	write_cmos_sensor(0x94, STARTX);//Don't Change Here!!!   crop_win_x1[7:0]                       
-	write_cmos_sensor(0x95, 0x07);                                                                                                                              
-	write_cmos_sensor(0x96, 0x98);                                                                                                                              
-	write_cmos_sensor(0x97, 0x0a);                                                                                                                              
-	write_cmos_sensor(0x98, 0x20); 
+	write_cmos_sensor(0x80, 0x50);
+	write_cmos_sensor(0x90, 0x01);
+	write_cmos_sensor(0x92, STARTY);//Don't Change Here!!!   crop_win_y1[7:0]
+	write_cmos_sensor(0x94, STARTX);//Don't Change Here!!!   crop_win_x1[7:0]
+	write_cmos_sensor(0x95, 0x07);
+	write_cmos_sensor(0x96, 0x98);
+	write_cmos_sensor(0x97, 0x0a);
+	write_cmos_sensor(0x98, 0x20);
 
 	/*Gain*/
 
-	write_cmos_sensor(0x99, 0x00); 
-	write_cmos_sensor(0x9a, 0x08);                 
-	write_cmos_sensor(0x9b, 0x10);             
-	write_cmos_sensor(0x9c, 0x18);          
-	write_cmos_sensor(0x9d, 0x19);          
-	write_cmos_sensor(0x9e, 0x1a);          
-	write_cmos_sensor(0x9f, 0x1b);          
-	write_cmos_sensor(0xa0, 0x1c);   
+	write_cmos_sensor(0x99, 0x00);
+	write_cmos_sensor(0x9a, 0x08);
+	write_cmos_sensor(0x9b, 0x10);
+	write_cmos_sensor(0x9c, 0x18);
+	write_cmos_sensor(0x9d, 0x19);
+	write_cmos_sensor(0x9e, 0x1a);
+	write_cmos_sensor(0x9f, 0x1b);
+	write_cmos_sensor(0xa0, 0x1c);
 	write_cmos_sensor(0xb0, 0x50);
-	write_cmos_sensor(0xb1, 0x01);   
-	write_cmos_sensor(0xb2, 0x00);   
-	write_cmos_sensor(0xb6, 0x00);   
+	write_cmos_sensor(0xb1, 0x01);
+	write_cmos_sensor(0xb2, 0x00);
+	write_cmos_sensor(0xb6, 0x00);
 
 	/*DD*/
 	write_cmos_sensor(0xfe, 0x01);
 	write_cmos_sensor(0xc2, 0x02);
-	write_cmos_sensor(0xc3, 0xe0);	
+	write_cmos_sensor(0xc3, 0xe0);
 	write_cmos_sensor(0xc4, 0xd9);
 	write_cmos_sensor(0xc5, 0x00);
 	write_cmos_sensor(0xfe, 0x00);
@@ -1215,19 +1215,19 @@ static void sensor_init(void)
 	/*BLK*/
 	write_cmos_sensor(0x40, 0x22);
 	write_cmos_sensor(0x4e, 0x3c);
-	write_cmos_sensor(0x4f, 0x3c); 
-	write_cmos_sensor(0x60, 0x00); 
+	write_cmos_sensor(0x4f, 0x3c);
+	write_cmos_sensor(0x60, 0x00);
 	write_cmos_sensor(0x61, 0x80);
-	write_cmos_sensor(0xab, 0x00); 
-	write_cmos_sensor(0xac, 0x30); 
-	
+	write_cmos_sensor(0xab, 0x00);
+	write_cmos_sensor(0xac, 0x30);
+
 	/*Dark Sun*/
-	write_cmos_sensor(0x68, 0xf4); 
+	write_cmos_sensor(0x68, 0xf4);
 	write_cmos_sensor(0x6a, 0x00);
 	write_cmos_sensor(0x6b, 0x00);
 	write_cmos_sensor(0x6c, 0xf4);//50
 	write_cmos_sensor(0x6e, 0xc1);//c9
-	
+
 	/*MIPI*/
 	write_cmos_sensor(0xfe, 0x03);
 	write_cmos_sensor(0x01, 0x07);
@@ -1255,12 +1255,12 @@ static void sensor_init(void)
 	write_cmos_sensor(0x2b, 0x09);
 	//write_cmos_sensor(0x42, 0x20);
 	//write_cmos_sensor(0x43, 0x0a);
- 	write_cmos_sensor(0xfe, 0x00); 	
+ 	write_cmos_sensor(0xfe, 0x00);
 }    /*    sensor_init  */
 
 static void preview_setting(void)
 {
-	LOG_INF("E!\n");	
+	LOG_INF("E!\n");
 	write_cmos_sensor(0xfe,0x03);
 	write_cmos_sensor(0x10,0x91);
 	write_cmos_sensor(0xfe,0x00);
@@ -1268,26 +1268,26 @@ static void preview_setting(void)
 
 static void capture_setting(kal_uint16 currefps)
 {
-    
+
 	LOG_INF("E! currefps:%d\n",currefps);
 	write_cmos_sensor(0xfe,0x03);
 	write_cmos_sensor(0x10,0x91);
-	write_cmos_sensor(0xfe,0x00);	
+	write_cmos_sensor(0xfe,0x00);
 }
 
 
 static void normal_video_setting(kal_uint16 currefps)
 {
-	LOG_INF("E! currefps:%d\n",currefps);	
+	LOG_INF("E! currefps:%d\n",currefps);
 	write_cmos_sensor(0xfe,0x03);
 	write_cmos_sensor(0x10,0x91);
-	write_cmos_sensor(0xfe,0x00);	
+	write_cmos_sensor(0xfe,0x00);
 }
 
 static void hs_video_setting(void)
 {
    	LOG_INF("E\n");
-	
+
 	write_cmos_sensor(0xfe,0x03);
 	write_cmos_sensor(0x10,0x91);
 	write_cmos_sensor(0xfe,0x00);
@@ -1298,7 +1298,7 @@ static void slim_video_setting(void)
     LOG_INF("E\n");
 	write_cmos_sensor(0xfe,0x03);
 	write_cmos_sensor(0x10,0x91);
-	write_cmos_sensor(0xfe,0x00);	
+	write_cmos_sensor(0xfe,0x00);
 }
 
 static kal_uint32 set_test_pattern_mode(kal_bool enable)
@@ -1307,10 +1307,10 @@ static kal_uint32 set_test_pattern_mode(kal_bool enable)
 
     if (enable) {
         write_cmos_sensor(0xfe, 0x00);
-        write_cmos_sensor(0x8c, 0x11);		
+        write_cmos_sensor(0x8c, 0x11);
     } else {
         write_cmos_sensor(0xfe, 0x00);
-        write_cmos_sensor(0x8c, 0x10);		
+        write_cmos_sensor(0x8c, 0x10);
     }
 
     spin_lock(&imgsensor_drv_lock);
@@ -1340,8 +1340,8 @@ static kal_uint32 get_imgsensor_id(UINT32 *sensor_id)
     kal_uint8 i = 0;
     kal_uint8 retry = 2;
     //sensor have two i2c address 0x6c 0x6d & 0x21 0x20, we should detect the module used i2c address
-        //likai Optimize camera begin  
-    /*   
+        //likai Optimize camera begin
+    /*
     if (0==pinSetIdx_id)
     	{
     		*sensor_id = 0xFFFFFFFF;
@@ -1358,11 +1358,11 @@ static kal_uint32 get_imgsensor_id(UINT32 *sensor_id)
 			if(0x5000==(read_cmos_sensor(0xf0) << 8)){
             *sensor_id = return_sensor_id();
             if (*sensor_id == imgsensor_info.sensor_id) {
-            
-            #if HQ_ANTI_CAMERA_INTERACT
-			g_CurrUsedSubCameraName=SUB_GC5005;
-		#endif
-			
+
+//            #if HQ_ANTI_CAMERA_INTERACT
+//			g_CurrUsedSubCameraName=SUB_GC5005;
+//  		#endif
+
                 LOG_INF("i2c write id: 0x%x, sensor id: 0x%x\n", imgsensor.i2c_write_id,*sensor_id);
                 return ERROR_NONE;
             }
@@ -1405,7 +1405,7 @@ static kal_uint32 open(void)
     kal_uint8 retry = 2;
     kal_uint32 sensor_id = 0;
     LOG_1;
-  
+
     while (imgsensor_info.i2c_addr_table[i] != 0xff) {
         spin_lock(&imgsensor_drv_lock);
         imgsensor.i2c_write_id = imgsensor_info.i2c_addr_table[i];
@@ -1431,14 +1431,14 @@ static kal_uint32 open(void)
 #ifdef GC5005_MIPI_USE_OTP
 		gc5005_gcore_identify_otp();
 #endif
-	
+
 		/* initail sequence write in  */
 		sensor_init();
-	
+
 		/*write registers from sram*/
 #ifdef GC5005_MIPI_USE_OTP
 		gc5005_gcore_update_otp();
-#endif	
+#endif
 
 
     spin_lock(&imgsensor_drv_lock);
@@ -1455,7 +1455,7 @@ static kal_uint32 open(void)
     imgsensor.test_pattern = KAL_FALSE;
     imgsensor.current_fps = imgsensor_info.pre.max_framerate;
     spin_unlock(&imgsensor_drv_lock);
-    GC5005DuringTestPattern = KAL_FALSE; 
+    GC5005DuringTestPattern = KAL_FALSE;
 
     return ERROR_NONE;
 }    /*    open  */
@@ -1578,7 +1578,7 @@ static kal_uint32 normal_video(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
     //imgsensor.current_fps = 300;
     imgsensor.autoflicker_en = KAL_FALSE;
     spin_unlock(&imgsensor_drv_lock);
-    normal_video_setting(imgsensor.current_fps);	
+    normal_video_setting(imgsensor.current_fps);
     return ERROR_NONE;
 }    /*    normal_video   */
 
@@ -1821,7 +1821,7 @@ static kal_uint32 set_max_framerate_by_scenario(MSDK_SCENARIO_ID_ENUM scenario_i
     kal_uint32 frame_length;
 
     LOG_INF("scenario_id = %d, framerate = %d\n", scenario_id, framerate);
-	
+
 	write_cmos_sensor(0xfe, 0x00);//travis
 	write_cmos_sensor(0x8a, 0x33);
 	write_cmos_sensor(0x8d, 0x00);
@@ -1901,7 +1901,7 @@ static kal_uint32 set_max_framerate_by_scenario(MSDK_SCENARIO_ID_ENUM scenario_i
             break;
     }
     write_cmos_sensor(0x8c, 0x10);//travis
-	write_cmos_sensor(0xfe, 0x00); 
+	write_cmos_sensor(0xfe, 0x00);
     return ERROR_NONE;
 }
 

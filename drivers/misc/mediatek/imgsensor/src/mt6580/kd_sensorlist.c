@@ -1,3 +1,16 @@
+/*
+ * Copyright (C) 2015 MediaTek Inc.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ */
+
 #include <linux/videodev2.h>
 #include <linux/i2c.h>
 #include <linux/platform_device.h>
@@ -26,9 +39,7 @@
 #include "kd_imgsensor_errcode.h"
 
 #include "kd_sensorlist.h"
-#ifdef CONFIG_HQ_HWINFO
-#include "hwinfo.h"
-#endif
+
 /* defined */
 #ifdef CONFIG_OF
 /* device tree */
@@ -58,58 +69,9 @@ char g_cam_infos[camera_infos_size] = {0};
 static unsigned int gDrvIndex;
 int cntPWROnMain = 0;
 int cntPWROnSub = 0;
-#ifdef CONFIG_HQ_HWINFO
-struct hwinfo  *main_camera_hwinfo = NULL;
-struct hwinfo  *sub_camera_hwinfo = NULL;
-#endif
+
+
 static DEFINE_SPINLOCK(power_count_lock);
-
-#ifdef CONFIG_HUAWEI_DSM
-#include 	<dsm/dsm_pub.h>
-#include <asm-generic/gpio.h>
-#include <mt-plat/mt_boot.h>
-#define CLIENT_NAME_CAMERA_GC5005		"dsm_camera"
-static int rgb_gc5005_debug_mask= 1;
-static struct dsm_dev dsm_camera_gc5005 = {
-	.name 		= CLIENT_NAME_CAMERA_GC5005,		// dsm client name
-	.fops 		= NULL,						      // options
-	.buff_size 	= DSM_SENSOR_BUF_MAX,			// buffer size
-};
-#define GC5005_ERR(x...) do {\
-    if (rgb_gc5005_debug_mask >=0) \
-        printk(KERN_ERR x);\
-    } while (0)
-
-#define GC5005_INFO(x...) do {\
-    if (rgb_gc5005_debug_mask >=1) \
-        printk(KERN_ERR x);\
-    } while (0)
-#define GC5005_FLOW(x...) do {\
-    if (rgb_gc5005_debug_mask >=2) \
-        printk(KERN_ERR x);\
-    } while (0)
-static struct dsm_client *gc5005_camera_dclient = NULL;
-extern	kal_uint8  ModuleHouseID;
-int camera_dsm_report_err(int errno)
-{
-	int size = 0;
-	if (FACTORY_BOOT == get_boot_mode() )
-	return 0;
-	if(dsm_client_ocuppy(gc5005_camera_dclient)){
-		/* buffer is busy */
-		GC5005_ERR("%s: buffer is busy!, errno = %d\n", __func__,errno);
-		return -EBUSY;
-	}
-	GC5005_INFO("dsm error, errno = %d \n", errno);
-
-	size = dsm_client_record(gc5005_camera_dclient, "camera dsm error,errno = %d \n", errno);
-
-	/*if device is not probe successfully or client is null, don't notify dsm work func*/
-	dsm_client_notify(gc5005_camera_dclient, errno);
-
-	return size;
-}
-#endif
 
 static DEFINE_SPINLOCK(kdsensor_drv_lock);
 
@@ -143,6 +105,7 @@ struct regulator *regVCAMD = NULL;
 struct regulator *regVCAMIO = NULL;
 struct regulator *regVCAMAF = NULL;
 struct regulator *regSubVCAMD = NULL;
+struct regulator *regVGP3 = NULL;
 #endif
 #define SENSOR_WR32(addr, data)    mt65xx_reg_sync_writel(data, addr)	/* For 89 Only.   // NEED_TUNING_BY_PROJECT */
 /* #define SENSOR_WR32(addr, data)    iowrite32(data, addr)    // For 89 Only.   // NEED_TUNING_BY_PROJECT */
@@ -385,9 +348,10 @@ int _kdCISModulePowerOn(CAMERA_DUAL_CAMERA_SENSOR_ENUM SensorIdx, char *currSens
 
 struct device *sensor_device = NULL;
 
-//struct platform_device *camerahw_platform_device;
 
-#if 1
+struct platform_device *camerahw_platform_device;
+
+#if 0
 
 /* static */
 
@@ -516,14 +480,14 @@ int iMultiReadReg(u16 a_u2Addr, u8 *a_puBuff, u16 i2cId, u8 number)
 		/*  */
 		i4RetValue = i2c_master_send(g_pstI2Cclient, puReadCmd, 2);
 		if (i4RetValue != 2) {
-			PK_ERR("[CAMERA SENSOR] I2C send failed, addr = 0x%x, data = 0x%x !!\n",
+			PK_DBG("[CAMERA SENSOR] I2C send failed, addr = 0x%x, data = 0x%x !!\n",
 			       a_u2Addr, *a_puBuff);
 			return -1;
 		}
 		/*  */
 		i4RetValue = i2c_master_recv(g_pstI2Cclient, (char *)a_puBuff, number);
 		if (i4RetValue != 1) {
-			PK_ERR("[CAMERA SENSOR] I2C read failed!!\n");
+			PK_DBG("[CAMERA SENSOR] I2C read failed!!\n");
 			return -1;
 		}
 	} else {
@@ -533,14 +497,14 @@ int iMultiReadReg(u16 a_u2Addr, u8 *a_puBuff, u16 i2cId, u8 number)
 		/*  */
 		i4RetValue = i2c_master_send(g_pstI2Cclient2, puReadCmd, 2);
 		if (i4RetValue != 2) {
-			PK_ERR("[CAMERA SENSOR] I2C send failed, addr = 0x%x, data = 0x%x !!\n",
+			PK_DBG("[CAMERA SENSOR] I2C send failed, addr = 0x%x, data = 0x%x !!\n",
 			       a_u2Addr, *a_puBuff);
 			return -1;
 		}
 		/*  */
 		i4RetValue = i2c_master_recv(g_pstI2Cclient2, (char *)a_puBuff, number);
 		if (i4RetValue != 1) {
-			PK_ERR("[CAMERA SENSOR] I2C read failed!!\n");
+			PK_DBG("[CAMERA SENSOR] I2C read failed!!\n");
 			return -1;
 		}
 	}
@@ -662,18 +626,12 @@ int iReadRegI2C(u8 *a_pSendData, u16 a_sizeSendData, u8 *a_pRecvData, u16 a_size
 		i4RetValue = i2c_master_send(g_pstI2Cclient2, a_pSendData, a_sizeSendData);
 		if (i4RetValue != a_sizeSendData) {
 			PK_ERR("[CAMERA SENSOR] I2C send failed!!, Addr = 0x%x\n", a_pSendData[0]);
-#ifdef CONFIG_HUAWEI_DSM
-			camera_dsm_report_err(DSM_CAMERA_I2C_ERR);
-#endif
 			return -1;
 		}
 
 		i4RetValue = i2c_master_recv(g_pstI2Cclient2, (char *)a_pRecvData, a_sizeRecvData);
 		if (i4RetValue != a_sizeRecvData) {
 			PK_ERR("[CAMERA SENSOR] I2C read failed!!\n");
-#ifdef CONFIG_HUAWEI_DSM
-			camera_dsm_report_err(DSM_CAMERA_I2C_ERR);
-#endif
 			return -1;
 		}
 	}
@@ -712,9 +670,6 @@ int iWriteReg(u16 a_u2Addr, u32 a_u4Data, u32 a_u4Bytes, u16 i2cId)
 
 	if (a_u4Bytes > 2) {
 		PK_ERR("[CAMERA SENSOR] exceed 2 bytes\n");
-#ifdef CONFIG_HUAWEI_DSM
-		camera_dsm_report_err(DSM_CAMERA_I2C_ERR);
-#endif
 		return -1;
 	}
 
@@ -733,10 +688,8 @@ int iWriteReg(u16 a_u2Addr, u32 a_u4Data, u32 a_u4Bytes, u16 i2cId)
 			i4RetValue = i2c_master_send(g_pstI2Cclient2, puSendCmd, (a_u4Bytes + 2));
 		}
 		if (i4RetValue != (a_u4Bytes + 2)) {
-#ifdef CONFIG_HUAWEI_DSM
-			camera_dsm_report_err(DSM_CAMERA_I2C_ERR);
-#endif
-			PK_ERR("[CAMERA SENSOR] I2C send failed addr = 0x%x, data = 0x%x !!\n", a_u2Addr, a_u4Data);
+			PK_ERR("[CAMERA SENSOR] I2C send failed addr = 0x%x, data = 0x%x !!\n",
+			       a_u2Addr, a_u4Data);
 		} else {
 			break;
 		}
@@ -810,8 +763,9 @@ int iBurstWriteReg_multi(u8 *pData, u32 bytes, u16 i2cId, u16 transfer_length)
 		}
 
 		phyAddr = 0;
+
 		buf =
-            dma_alloc_coherent(&(camerahw_platform_device.dev), bytes,
+		    dma_alloc_coherent(&(camerahw_platform_device->dev), bytes,
 				       (dma_addr_t *) &phyAddr, GFP_KERNEL);
 
 		if (NULL == buf) {
@@ -843,7 +797,8 @@ int iBurstWriteReg_multi(u8 *pData, u32 bytes, u16 i2cId, u16 transfer_length)
 				PK_ERR("Error sent I2C ret = %d\n", ret);
 			}
 		} while (((ret & 0xffff) != transfer_length) && (retry > 0));
-        dma_free_coherent(&(camerahw_platform_device.dev), bytes, buf, phyAddr);
+
+		dma_free_coherent(&(camerahw_platform_device->dev), bytes, buf, phyAddr);
 		spin_lock(&kdsensor_drv_lock);
 		g_pstI2Cclient->addr = old_addr;
 		spin_unlock(&kdsensor_drv_lock);
@@ -854,7 +809,7 @@ int iBurstWriteReg_multi(u8 *pData, u32 bytes, u16 i2cId, u16 transfer_length)
 		}
 		phyAddr = 0;
 		buf =
-            dma_alloc_coherent(&(camerahw_platform_device.dev), bytes,
+		    dma_alloc_coherent(&(camerahw_platform_device->dev), bytes,
 				       (dma_addr_t *) &phyAddr, GFP_KERNEL);
 
 		if (NULL == buf) {
@@ -886,7 +841,8 @@ int iBurstWriteReg_multi(u8 *pData, u32 bytes, u16 i2cId, u16 transfer_length)
 			}
 		} while (((ret & 0xffff) != transfer_length) && (retry > 0));
 
-        dma_free_coherent(&(camerahw_platform_device.dev), bytes, buf, phyAddr);
+
+		dma_free_coherent(&(camerahw_platform_device->dev), bytes, buf, phyAddr);
 		spin_lock(&kdsensor_drv_lock);
 		g_pstI2Cclient2->addr = old_addr;
 		spin_unlock(&kdsensor_drv_lock);
@@ -909,12 +865,16 @@ int iMultiWriteReg(u8 *pData, u16 lens, u16 i2cId)
 	int ret = 0;
 
 	if (gI2CBusNum == SUPPORT_I2C_BUS_NUM1) {
+		spin_lock(&kdsensor_drv_lock);
 		g_pstI2Cclient->addr = (i2cId >> 1);
 		g_pstI2Cclient->ext_flag = (g_pstI2Cclient->ext_flag) | (I2C_DMA_FLAG);
 		ret = i2c_master_send(g_pstI2Cclient, pData, lens);
+		spin_unlock(&kdsensor_drv_lock);
 	} else {
+		spin_lock(&kdsensor_drv_lock);
 		g_pstI2Cclient2->addr = (i2cId >> 1);
 		g_pstI2Cclient2->ext_flag = (g_pstI2Cclient2->ext_flag) | (I2C_DMA_FLAG);
+		spin_unlock(&kdsensor_drv_lock);
 		ret = i2c_master_send(g_pstI2Cclient2, pData, lens);
 	}
 
@@ -1364,11 +1324,12 @@ kdModulePowerOn(CAMERA_DUAL_CAMERA_SENSOR_ENUM socketIdx[KDIMGSENSOR_MAX_INVOKE_
 
 	for (i = KDIMGSENSOR_INVOKE_DRIVER_0; i < KDIMGSENSOR_MAX_INVOKE_DRIVERS; i++) {
 		if (g_bEnableDriver[i]) {
-			/* PK_XLOG_INFO("[%s][%d][%d][%s][%s]\r\n",__FUNCTION__,g_bEnableDriver[i],socketIdx[i],sensorNameStr[i],mode_name); */
+			 PK_ERR("[%s][%d][%d][%s][%s]\r\n",__FUNCTION__,g_bEnableDriver[i],socketIdx[i],sensorNameStr[i],mode_name);
 #ifndef CONFIG_FPGA_EARLY_PORTING
 			ret = _kdCISModulePowerOn(socketIdx[i], sensorNameStr[i], On, mode_name);
 #endif
 			if (ERROR_NONE != ret) {
+PK_ERR("ERROR moduleon[%s][%d][%d][%s][%s]\r\n",__FUNCTION__,g_bEnableDriver[i],socketIdx[i],sensorNameStr[i],mode_name);
 				PK_ERR("[%s]", __func__);
 				return ret;
 			}
@@ -1425,35 +1386,11 @@ int kdSetDriver(unsigned int *pDrvIndex)
 			spin_lock(&kdsensor_drv_lock);
 			gI2CBusNum = SUPPORT_I2C_BUS_NUM2;
 			spin_unlock(&kdsensor_drv_lock);
-		#ifdef CONFIG_HQ_HWINFO
-			hwinfo_set_devinfo(sub_camera_hwinfo,"%s",g_invokeSensorNameStr[i]);
-			if (!strcmp(g_invokeSensorNameStr[i], SENSOR_DRVNAME_HI553_MIPI_RAW)) {
-				hwinfo_set_devinfo(sub_camera_hwinfo,"Kingcome %s FF 5M F2.4", g_invokeSensorNameStr[i]);
-			}else if (!strcmp(g_invokeSensorNameStr[i], SENSOR_DRVNAME_GC5005_MIPI_RAW)) {
-				hwinfo_set_devinfo(sub_camera_hwinfo,"JSL %s FF 5M F2.4", g_invokeSensorNameStr[i]);
-			}else if (!strcmp(g_invokeSensorNameStr[i], SENSOR_DRVNAME_GC5025_MIPI_RAW)) {
-				hwinfo_set_devinfo(sub_camera_hwinfo,"SunWin %s FF 5M F2.4", g_invokeSensorNameStr[i]);
-			}else {
-				hwinfo_set_devinfo(sub_camera_hwinfo,"%s", g_invokeSensorNameStr[i]);
-			}
-		#endif
 			/* PK_XLOG_INFO("kdSetDriver: switch I2C BUS2\n"); */
 		} else {
 			spin_lock(&kdsensor_drv_lock);
 			gI2CBusNum = SUPPORT_I2C_BUS_NUM1;
 			spin_unlock(&kdsensor_drv_lock);
-		#ifdef CONFIG_HQ_HWINFO
-			hwinfo_set_devinfo(main_camera_hwinfo,"%s",g_invokeSensorNameStr[i]);
-			if (!strcmp(g_invokeSensorNameStr[i], SENSOR_DRVNAME_HI843B_MIPI_RAW)) {
-				hwinfo_set_devinfo(main_camera_hwinfo,"LiteArray %s AF 8M F2.0", g_invokeSensorNameStr[i]);
-			}else if (!strcmp(g_invokeSensorNameStr[i], SENSOR_DRVNAME_OV8856_HUAQUAN_MIPI_RAW)) {
-				hwinfo_set_devinfo(main_camera_hwinfo,"Kingcome %s AF 8M F2.0", g_invokeSensorNameStr[i]);
-			}else if (!strcmp(g_invokeSensorNameStr[i], SENSOR_DRVNAME_S5K4H8_MIPI_RAW)) {
-				hwinfo_set_devinfo(main_camera_hwinfo,"Q-Tech %s AF 8M F2.0", g_invokeSensorNameStr[i]);
-			}else {
-				hwinfo_set_devinfo(main_camera_hwinfo,"%s", g_invokeSensorNameStr[i]);
-			}
-		#endif
 			/* PK_XLOG_INFO("kdSetDriver: switch I2C BUS1\n"); */
 		}
 #endif
@@ -1482,7 +1419,7 @@ int kdSetDriver(unsigned int *pDrvIndex)
 			       sizeof(pSensorList[drvIdx[i]].drvname));
 			/* return sensor ID */
 			/* pDrvIndex[0] = (unsigned int)pSensorList[drvIdx].SensorId; */
-			PK_INF("[%d][%d][%d][%s][%d]\n", i, g_bEnableDriver[i],
+			PK_ERR("[%d][%d][%d][%s][%d]\n", i, g_bEnableDriver[i],
 			       g_invokeSocketIdx[i], g_invokeSensorNameStr[i],
 			       sizeof(pSensorList[drvIdx[i]].drvname));
 		}
@@ -1591,7 +1528,9 @@ int kdSensorSyncFunctionPtr(void)
 	/* if the delay frame is 0 or 0xFF, stop to count */
 	if ((g_NewSensorExpGain.uISPGainDelayFrame != 0xFF)
 	    && (g_NewSensorExpGain.uISPGainDelayFrame != 0)) {
+		spin_lock(&kdsensor_drv_lock);
 		g_NewSensorExpGain.uISPGainDelayFrame--;
+		spin_unlock(&kdsensor_drv_lock);
 	}
 	mutex_unlock(&kdCam_Mutex);
 	return 0;
@@ -1738,7 +1677,7 @@ static inline int adopt_CAMERA_HW_CheckIsAlive(void)
 	MUINT32 sensorID = 0;
 	MUINT32 retLen = 0;
 	MSDK_SENSOR_RESOLUTION_INFO_STRUCT sensorResolution[2], *psensorResolution[2];
-	MUINT32 curr_sensor_id;
+	MUINT32 curr_sensor_id = 0;
 
 	KD_IMGSENSOR_PROFILE_INIT();
 	/* power on sensor */
@@ -1783,9 +1722,9 @@ static inline int adopt_CAMERA_HW_CheckIsAlive(void)
 					psensorResolution[1] = &sensorResolution[1];
 					// don't care of the result
 					g_pSensorFunc->SensorGetResolution(psensorResolution);
-					if (g_invokeSocketIdx[i] == DUAL_CAMERA_MAIN_SENSOR) {
+					if(g_invokeSocketIdx[i] == DUAL_CAMERA_MAIN_SENSOR)
 						curr_sensor_id = 0;
-					} else if (g_invokeSocketIdx[i] == DUAL_CAMERA_SUB_SENSOR) {
+					else if(g_invokeSocketIdx[i] == DUAL_CAMERA_SUB_SENSOR)
 						curr_sensor_id = 1;
 					/* fill the cam infos with name/width/height */
 					snprintf(g_cam_infos, sizeof(g_cam_infos),"%s CAM[%d]:%s,Width:%d, Height:%d;",
@@ -1793,7 +1732,6 @@ static inline int adopt_CAMERA_HW_CheckIsAlive(void)
 								sensorResolution[curr_sensor_id].SensorFullWidth, sensorResolution[curr_sensor_id].SensorFullHeight);
 
 					err = ERROR_NONE;
-                    }
 				}
 				if (ERROR_NONE != err) {
 					PK_DBG
@@ -1806,7 +1744,8 @@ static inline int adopt_CAMERA_HW_CheckIsAlive(void)
 	}
 
 	/* reset sensor state after power off */
-	err1 = g_pSensorFunc->SensorClose();
+	if (g_pSensorFunc)
+		err1 = g_pSensorFunc->SensorClose();
 	if (ERROR_NONE != err1) {
 		PK_DBG("SensorClose\n");
 	}
@@ -1828,13 +1767,39 @@ static inline int adopt_CAMERA_HW_CheckIsAlive(void)
 static inline int adopt_CAMERA_HW_GetResolution(void *pBuf)
 {
 	/* ToDo: remove print */
-	ACDK_SENSOR_PRESOLUTION_STRUCT *pBufResolution = (ACDK_SENSOR_PRESOLUTION_STRUCT *) pBuf;
-
+	ACDK_SENSOR_PRESOLUTION_STRUCT *pBufResolution = (ACDK_SENSOR_PRESOLUTION_STRUCT *)pBuf;
+	ACDK_SENSOR_RESOLUTION_INFO_STRUCT* pRes[2] = { NULL, NULL };
 	PK_XLOG_INFO("[CAMERA_HW] adopt_CAMERA_HW_GetResolution, pBuf: %p\n", pBuf);
+	pRes[0] = (ACDK_SENSOR_RESOLUTION_INFO_STRUCT* )kmalloc(sizeof(MSDK_SENSOR_RESOLUTION_INFO_STRUCT), GFP_KERNEL);
+	if (pRes[0] == NULL) {
+		PK_ERR(" ioctl allocate mem failed\n");
+		return -ENOMEM;
+	}
+	pRes[1] = (ACDK_SENSOR_RESOLUTION_INFO_STRUCT* )kmalloc(sizeof(MSDK_SENSOR_RESOLUTION_INFO_STRUCT), GFP_KERNEL);
+	if (pRes[1] == NULL) {
+		kfree(pRes[0]);
+		PK_ERR(" ioctl allocate mem failed\n");
+		return -ENOMEM;
+	}
+
+
 	if (g_pSensorFunc) {
-		g_pSensorFunc->SensorGetResolution(pBufResolution->pResolution);
-	} else {
+		g_pSensorFunc->SensorGetResolution(pRes);
+		if (copy_to_user((void __user *) (pBufResolution->pResolution[0]) , (void *)pRes[0] , sizeof(MSDK_SENSOR_RESOLUTION_INFO_STRUCT))) {
+			PK_ERR("copy to user failed\n");
+		}
+		if (copy_to_user((void __user *) (pBufResolution->pResolution[1]) , (void *)pRes[1] , sizeof(MSDK_SENSOR_RESOLUTION_INFO_STRUCT))) {
+			PK_ERR("copy to user failed\n");
+		}
+	}
+	else {
 		PK_DBG("[CAMERA_HW]ERROR:NULL g_pSensorFunc\n");
+	}
+	if (pRes[0] != NULL) {
+		kfree(pRes[0]);
+	}
+	if (pRes[1] != NULL) {
+		kfree(pRes[1]);
 	}
 
 	return 0;
@@ -2325,6 +2290,7 @@ static inline int adopt_CAMERA_HW_FeatureControl(void *pBuf)
 		g_NewSensorExpGain.uSensorExpDelayFrame = pSensorSyncInfo->uSensorExpDelayFrame;
 		g_NewSensorExpGain.uSensorGainDelayFrame = pSensorSyncInfo->uSensorGainDelayFrame;
 		g_NewSensorExpGain.uISPGainDelayFrame = pSensorSyncInfo->uISPGainDelayFrame;
+		spin_unlock(&kdsensor_drv_lock);
 		/* AE smooth not change shutter to speed up */
 		if ((0 == g_NewSensorExpGain.u2SensorNewExpTime)
 		    || (0xFFFF == g_NewSensorExpGain.u2SensorNewExpTime)) {
@@ -2357,7 +2323,9 @@ static inline int adopt_CAMERA_HW_FeatureControl(void *pBuf)
 		/* if the delay frame is 0 or 0xFF, stop to count */
 		if ((g_NewSensorExpGain.uISPGainDelayFrame != 0xFF)
 		    && (g_NewSensorExpGain.uISPGainDelayFrame != 0)) {
+			spin_lock(&kdsensor_drv_lock);
 			g_NewSensorExpGain.uISPGainDelayFrame--;
+			spin_unlock(&kdsensor_drv_lock);
 		}
 
 
@@ -2841,7 +2809,7 @@ static inline int adopt_CAMERA_HW_FeatureControl(void *pBuf)
 	case SENSOR_FEATURE_SET_MIN_MAX_FPS:
 	case SENSOR_FEATURE_GET_PDAF_INFO:
 	case SENSOR_FEATURE_GET_SENSOR_PDAF_CAPACITY:
-		/*  */
+
 		if (copy_to_user
 		    ((void __user *)pFeatureCtrl->pFeaturePara, (void *)pFeaturePara,
 		     FeatureParaLen)) {
@@ -2929,12 +2897,14 @@ static inline int kdSetSensorMclk(int *pBuf)
 	PK_DBG("[CAMERA SENSOR] kdSetSensorMclk on=%d, freq= %d\n", pSensorCtrl->on,
 	       pSensorCtrl->freq);
 	if (1 == pSensorCtrl->on) {
+		enable_mux(MT_CLKMUX_CAM_MUX_SEL, "CAMERA_SENSOR");
 		enable_mux(MT_CLKMUX_SCAM_MUX_SEL, "CAMERA_SENSOR");
 		clkmux_sel(MT_CLKMUX_CAM_MUX_SEL,
 			   pSensorCtrl->freq == MCLK_48MHZ_GROUP ? CAM_PLL_48MHZ : CAM_PLL_52MHZ,
 			   "CAMERA_SENSOR");
 	} else {
 		disable_mux(MT_CLKMUX_SCAM_MUX_SEL, "CAMERA_SENSOR");
+		disable_mux(MT_CLKMUX_CAM_MUX_SEL, "CAMERA_SENSOR");
 	}
 	return ret;
 /* #endif */
@@ -3076,11 +3046,11 @@ bool Get_Cam_Regulator(void)
 				if (regVCAMIO == NULL) {
 					regVCAMIO = regulator_get(sensor_device, "vcamio");
 				}
-				if (regSubVCAMD == NULL) {
-				  	 regSubVCAMD = regulator_get(sensor_device, "vgp3");
-			    }
 				if (regVCAMAF == NULL) {
 					regVCAMAF = regulator_get(sensor_device, "vcamaf");
+				}
+                                if (regVGP3 == NULL) {
+						regVGP3 = regulator_get(sensor_device, "vgp3");//stas
 				}
 			} else {
 				/* backup original dev.of_node */
@@ -3089,11 +3059,6 @@ bool Get_Cam_Regulator(void)
 				sensor_device->of_node =
 				    of_find_compatible_node(NULL, NULL,
 							    "mediatek,camera_hw");
-				/*
-				   if (regVCAMA == NULL) {
-				   regVCAMA_SUB = regulator_get(sensor_device, "SUB_CAMERA_POWER_A");
-				   }
-				 */
 				if (regVCAMA == NULL) {
 						regVCAMA = regulator_get(sensor_device, "vcama");
 				}
@@ -3101,7 +3066,10 @@ bool Get_Cam_Regulator(void)
 						regVCAMD = regulator_get(sensor_device, "vcamd");
 				}
 				if (regSubVCAMD == NULL) {
-				    		regSubVCAMD = regulator_get(sensor_device, "vgp3");
+						regSubVCAMD = regulator_get(sensor_device, "vcamd_sub");
+				}
+				if (regVGP3 == NULL) {
+						regVGP3 = regulator_get(sensor_device, "vgp3");//stas
 				}
 				if (regVCAMIO == NULL) {
 						regVCAMIO = regulator_get(sensor_device, "vcamio");
@@ -3135,14 +3103,14 @@ bool _hwPowerOn(KD_REGULATOR_TYPE_T type, int powerVolt)
 		reg = regVCAMD;
 	} else if (type == VCAMIO) {
 		reg = regVCAMIO;
-	} else if (type == SUB_VCAMD) {
-		reg = regSubVCAMD;
 	} else if (type == VCAMAF) {
 		reg = regVCAMAF;
-	} else
+	} else if (type == VGP3)
+        {reg = regVGP3;}//stas
+ 	 else
 		return ret;
 
-	if (reg != NULL && !IS_ERR(reg)) {
+	if (!IS_ERR(reg)) {
 		if (regulator_set_voltage(reg, powerVolt, powerVolt) != 0) {
 			PK_DBG
 			    ("[_hwPowerOn]fail to regulator_set_voltage, powertype:%d powerId:%d\n",
@@ -3174,11 +3142,11 @@ bool _hwPowerDown(KD_REGULATOR_TYPE_T type)
 		reg = regVCAMD;
 	} else if (type == VCAMIO) {
 		reg = regVCAMIO;
-	} else if (type == SUB_VCAMD) {
-		reg = regSubVCAMD;
 	} else if (type == VCAMAF) {
 		reg = regVCAMAF;
-	} else
+	} else if (type == VGP3)
+        {reg = regVGP3;}//stas
+	else
 		return ret;
 
 	if (!IS_ERR(reg)) {
@@ -3641,7 +3609,7 @@ static long CAMERA_HW_Ioctl(struct file *a_pstFile,
 		break;
 
 	case KDIMGSENSORIOC_X_SET_SHUTTER_GAIN_WAIT_DONE:
-		/*i4RetValue = kdSensorSetExpGainWaitDone((int *)pBuff);*/
+		i4RetValue = kdSensorSetExpGainWaitDone((int *)pBuff);
 		break;
 
 	case KDIMGSENSORIOC_X_SET_CURRENT_SENSOR:
@@ -3717,7 +3685,6 @@ static int CAMERA_HW_Open(struct inode *a_pstInode, struct file *a_pstFile)
 
 	/*  */
 	atomic_inc(&g_CamDrvOpenCnt);
-	enable_mux(MT_CLKMUX_CAM_MUX_SEL, "CAMERA_SENSOR");
 	return 0;
 }
 
@@ -3734,7 +3701,6 @@ static int CAMERA_HW_Release(struct inode *a_pstInode, struct file *a_pstFile)
 	atomic_dec(&g_CamDrvOpenCnt);
 	/* if (atomic_read(&g_CamDrvOpenCnt) == 0) */
 	checkPowerBeforeClose(CAMERA_HW_DRVNAME1);
-	disable_mux(MT_CLKMUX_CAM_MUX_SEL, "CAMERA_SENSOR");
 
 	return 0;
 }
@@ -3814,13 +3780,6 @@ static inline int RegisterCAMERA_HWCharDrv(void)
 ********************************************************************************/
 static inline void UnregisterCAMERA_HWCharDrv(void)
 {
-#ifdef CONFIG_HUAWEI_DSM
-	if(gc5005_camera_dclient)
-	{
-		dsm_unregister_client(gc5005_camera_dclient,&dsm_camera_gc5005);
-		gc5005_camera_dclient=NULL;
-	}
-#endif
 	/* Release char driver */
 	cdev_del(g_pCAMERA_HW_CharDrv);
 
@@ -3849,12 +3808,6 @@ static int CAMERA_HW_i2c_probe(struct i2c_client *client, const struct i2c_devic
 	g_pstI2Cclient->timing = 100;	/* 100k */
 	g_pstI2Cclient->ext_flag &= ~I2C_POLLING_FLAG;	/* No I2C polling busy waiting */
 
-#ifdef CONFIG_HUAWEI_DSM
-	gc5005_camera_dclient = dsm_register_client(&dsm_camera_gc5005);
-	if(!gc5005_camera_dclient)
-		GC5005_ERR("%s: register dsm_dclient failed!!, line = %d\n", __func__,__LINE__);
-#endif
-	/* Release char driver */
 	spin_unlock(&kdsensor_drv_lock);
 
 	/* Register char driver */
@@ -3862,13 +3815,6 @@ static int CAMERA_HW_i2c_probe(struct i2c_client *client, const struct i2c_devic
 
 	if (i4RetValue) {
 		PK_ERR("[CAMERA_HW] register char device failed!\n");
-#ifdef CONFIG_HUAWEI_DSM
-		if(gc5005_camera_dclient)
-		{
-			dsm_unregister_client(gc5005_camera_dclient,&dsm_camera_gc5005);
-			gc5005_camera_dclient=NULL;
-		}
-#endif
 		return i4RetValue;
 	}
 
@@ -4117,12 +4063,6 @@ static int CAMERA_HW_probe(struct platform_device *pdev)
 #if !defined(CONFIG_MTK_LEGACY)
 	mtkcam_gpio_init(pdev);
     mtkcam_pin_mux_init(pdev);
-#endif
-#ifdef CONFIG_HQ_HWINFO
-	main_camera_hwinfo = hwinfo_create("main_camera");
-	hwinfo_register(main_camera_hwinfo);
-	sub_camera_hwinfo = hwinfo_create("sub_camera");
-	hwinfo_register(sub_camera_hwinfo);
 #endif
 	return i2c_add_driver(&CAMERA_HW_i2c_driver);
 }
@@ -4399,7 +4339,7 @@ static int CAMERA_HW_Reg_Debug(struct file *file, const char *buffer, size_t cou
 
 	if (copy_from_user(regBuf, buffer, u4CopyBufSize))
 		return -EFAULT;
-#ifdef ENG_MODE
+
 	if (sscanf(regBuf, "%x %x", &sensorReg.RegAddr, &sensorReg.RegData) == 2) {
 		if (g_pSensorFunc != NULL) {
 			g_pSensorFunc->SensorFeatureControl(DUAL_CAMERA_MAIN_SENSOR,
@@ -4440,7 +4380,7 @@ static int CAMERA_HW_Reg_Debug(struct file *file, const char *buffer, size_t cou
 			       debugSensor.value);
 		}
 	}
-#endif
+
 	return count;
 }
 
