@@ -137,6 +137,11 @@ struct tpd_driver_t {
 	void (*resume)(struct device *h);
 	int tpd_have_button;
 	struct tpd_attrs attrs;
+#ifdef CONFIG_PROJECT_V3702
+	void (*tpd_get_fw_version)(char *fw_vendor_numb);
+	void (*tpd_get_fw_vendor_name)(char * fw_vendor_name);
+	void (*tpd_ftm_force_update) (char * ftm_update);
+#endif
 };
 
 

@@ -24,6 +24,9 @@ config TOUCHSCREEN_MTK
 
 source "drivers/input/touchscreen/mediatek/GT1151/Kconfig"
 
+config TOUCHSCREEN_MTK_EKTF2K_V3702
+	bool "ektf2k for Mediatek package"
+	default n
 
 config TOUCHSCREEN_MTK_GT1151TB
 	bool "GT1151 for Mediatek package"
@@ -122,6 +125,9 @@ config TOUCHSCREEN_MTK_FT5X0X
 
 source "drivers/input/touchscreen/mediatek/ft5x0x/Kconfig"
 
+config TOUCHSCREEN_MTK_FT6336
+	bool "FT6336 for Mediatek package"
+	default n
 
 config TOUCHSCREEN_MTK_FT6336S
 	bool "FT633S for Mediatek package"

@@ -13,3 +13,6 @@ obj-$(CONFIG_MTK_APDS9930)	+=  APDS9930/
 obj-$(CONFIG_MTK_LTR559)	+=  ltr559/
 obj-$(CONFIG_MTK_STK3X1X_OT)	+=  stk3x1x_ot/
 obj-$(CONFIG_MTK_STK3X1X)	+=  stk3x1x/
+obj-$(CONFIG_MTK_LTR553)	+=  ltr553/
+obj-$(CONFIG_MTK_EPL2570)	+=  epl2570/
+

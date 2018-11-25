@@ -13,6 +13,10 @@ config MTK_PLATFORM
 config ARCH_MTK_PROJECT
 	string "MTK project name"
 
+config PROJECT_V3702
+	bool "PROJECT_V3702"
+	default n
+
 config MTK_LEGACY
 	bool "MTK LEGACY driver API support"
 	help

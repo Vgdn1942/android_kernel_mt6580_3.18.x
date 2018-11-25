@@ -43,6 +43,19 @@
 /******************************************************************************
  * GPIO configuration new nik-kst
 ******************************************************************************/
+#ifdef CONFIG_PROJECT_V3702
+
+#define GPIO_TORCH_EN         (GPIO8 | 0x80000000)
+#define GPIO_TORCH_EN_M_GPIO   GPIO_MODE_00
+#define GPIO_TORCH_EN_M_EINT   GPIO_MODE_06
+#define GPIO_TORCH_EN_M_PWM   GPIO_MODE_05
+
+#define GPIO_FLASH_LED_EN         (GPIO7 | 0x80000000)
+#define GPIO_FLASH_LED_EN_M_GPIO   GPIO_MODE_00
+#define GPIO_FLASH_LED_EN_M_EINT   GPIO_MODE_06
+
+#else
+
 #define GPIO_TORCH_EN         (GPIO4 | 0x80000000)
 #define GPIO_TORCH_EN_M_GPIO   GPIO_MODE_00
 #define GPIO_TORCH_EN_M_EINT   GPIO_MODE_06
@@ -51,6 +64,8 @@
 #define GPIO_FLASH_LED_EN         (GPIO14 | 0x80000000)
 #define GPIO_FLASH_LED_EN_M_GPIO   GPIO_MODE_00
 #define GPIO_FLASH_LED_EN_M_EINT   GPIO_MODE_06
+
+#endif
 /******************************************************************************
  * end new nik-kst
 ******************************************************************************/
@@ -98,7 +113,7 @@ static void work_timeOutFunc(struct work_struct *data);
 
 int FL_Enable(void)
 {
-	PK_DBG("FL_enable.g_is_torch_mode = %d\n",g_is_torch_mode);	
+	PK_DBG("FL_enable.g_is_torch_mode = %d\n",g_is_torch_mode);
 	if(g_is_torch_mode)
 	{
 		PK_DBG("wangguan go here.g_is_torch_mode=1\n");
@@ -106,12 +121,12 @@ int FL_Enable(void)
 		mt_set_gpio_out(GPIO_FLASH_LED_EN , 0);
 	}
 	else
-	{	
+	{
 		mt_set_gpio_out(GPIO_TORCH_EN, 1);
 		mt_set_gpio_out(GPIO_FLASH_LED_EN , 1);
 
 	}
-	
+
     return 0;
 }
 
@@ -119,7 +134,7 @@ int FL_Disable(void)
 {
 	PK_DBG("FL_Disable");
 	mt_set_gpio_out(GPIO_FLASH_LED_EN , 0);
-	mt_set_gpio_out(GPIO_TORCH_EN, 0);	
+	mt_set_gpio_out(GPIO_TORCH_EN, 0);
     return 0;
 }
 
@@ -127,16 +142,16 @@ int FL_dim_duty(kal_uint32 duty)
 {
 	PK_DBG("FL_dim_duty %d, g_is_torch_mode %d", duty, g_is_torch_mode);
 	if(duty == 0)	{
-		g_is_torch_mode = 1;		
+		g_is_torch_mode = 1;
 	}
 	else{
-		g_is_torch_mode = 0;		
+		g_is_torch_mode = 0;
 	}
 	if((g_timeOutTimeMs == 0) && (duty > 0))
 	{
-		PK_ERR("FL_dim_duty %d , FLASH mode but timeout %d", duty, g_timeOutTimeMs);	
-		g_is_torch_mode = 1;	
-	}	
+		PK_ERR("FL_dim_duty %d , FLASH mode but timeout %d", duty, g_timeOutTimeMs);
+		g_is_torch_mode = 1;
+	}
     return 0;
 }
 
@@ -148,7 +163,7 @@ int FL_Init(void)
 	PK_DBG("FL_init");
 
 	mt_set_gpio_mode(GPIO_TORCH_EN, GPIO_TORCH_EN_M_GPIO);
-	mt_set_gpio_dir(GPIO_TORCH_EN, GPIO_DIR_OUT);  
+	mt_set_gpio_dir(GPIO_TORCH_EN, GPIO_DIR_OUT);
 	mt_set_gpio_mode(GPIO_FLASH_LED_EN , GPIO_FLASH_LED_EN_M_GPIO );
 	mt_set_gpio_dir(GPIO_FLASH_LED_EN , GPIO_DIR_OUT);
 

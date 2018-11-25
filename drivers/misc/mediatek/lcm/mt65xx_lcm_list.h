@@ -174,6 +174,7 @@ extern LCM_DRIVER rm68210_hd720_dsi_ufoe_cmd_lcm_drv;
 extern LCM_DRIVER r63311_fhd_dsi_vedio_lcm_drv;
 extern LCM_DRIVER otm1283a_6589_hd_dsi;
 extern LCM_DRIVER hx8394a_hd720_dsi_vdo_tianma_v2_lcm_drv;
+extern LCM_DRIVER hx8394f_hd_dsi_vdo_3lanes_txd_lcm_drv;
 extern LCM_DRIVER cpt_clap070wp03xg_lvds_lcm_drv;
 extern LCM_DRIVER hx8369_dsi_cmd_6571_lcm_drv;
 extern LCM_DRIVER hx8369_dsi_vdo_6571_lcm_drv;
@@ -271,6 +272,9 @@ extern LCM_DRIVER auo_wuxga_dsi_vdo_lcm_drv;
 extern LCM_DRIVER ili9806e_dsi_vdo_tcl_blu5039_drv;
 extern LCM_DRIVER otm8019a_dsi_vdo_boyi_t50m_drv;
 extern LCM_DRIVER ili9881c_hd_dsi_vdo_ilitek_nt50358_3lane_lcm_drv;
+extern LCM_DRIVER ili9881c_hd_dsi_vdo_3lanes_dj_lcm_drv;
+extern LCM_DRIVER ili9881c_hd_dsi_vdo_3lanes_zgd_lcm_drv;
+extern LCM_DRIVER ili9881c_hd_dsi_vdo_3lanes_txd_lcm_drv;
 extern LCM_DRIVER nt35521_hd720_dsi_vdo_rixin_lcm_drv;
 #ifdef BUILD_LK
 extern void mdelay(unsigned long msec);

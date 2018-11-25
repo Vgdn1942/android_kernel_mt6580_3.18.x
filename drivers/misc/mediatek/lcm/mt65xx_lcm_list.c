@@ -37,9 +37,23 @@ LCM_DRIVER *lcm_driver_list[] = {
 #if defined(ILI9881C_HD_DSI_VDO_ILITEK_NT50358_3LANE)
 	&ili9881c_hd_dsi_vdo_ilitek_nt50358_3lane_lcm_drv,
 #endif
+
+#if defined(ILI9881C_HD_DSI_VDO_3LANES_DJ)
+	&ili9881c_hd_dsi_vdo_3lanes_dj_lcm_drv,
+#endif
+
+#if defined(ILI9881C_HD_DSI_VDO_3LANES_ZGD)
+	&ili9881c_hd_dsi_vdo_3lanes_zgd_lcm_drv,
+#endif
+
+#if defined(ILI9881C_HD_DSI_VDO_3LANES_TXD)
+	&ili9881c_hd_dsi_vdo_3lanes_txd_lcm_drv,
+#endif
+
 #if defined(OTM1284A_HD720_DSI_VDO_TM)
 	&otm1284a_hd720_dsi_vdo_tm_lcm_drv,
 #endif
+
 #if defined(OTM1285A_HD720_DSI_VDO_TM)
 	&otm1285a_hd720_dsi_vdo_tm_lcm_drv,
 #endif
@@ -714,6 +728,10 @@ LCM_DRIVER *lcm_driver_list[] = {
 
 #if defined(HX8394A_HD720_DSI_VDO_TIANMA)
 	&hx8394a_hd720_dsi_vdo_tianma_lcm_drv,
+#endif
+
+#if defined(HX8394F_HD_DSI_VDO_3LANES_TXD)
+	&hx8394f_hd_dsi_vdo_3lanes_txd_lcm_drv,
 #endif
 
 #if defined(R69429_WUXGA_DSI_CMD)

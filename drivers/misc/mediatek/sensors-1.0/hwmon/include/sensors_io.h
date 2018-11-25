@@ -151,6 +151,13 @@ struct SENSOR_DATA {
 #define AAL_GET_ALS_DATA				_IOR(ALSPS, 0x16, int)
 #define ALSPS_ALS_ENABLE_CALI			_IO(ALSPS, 0x17)
 #define ALSPS_PS_ENABLE_CALI			_IO(ALSPS, 0x18)
+//LINE<JIRA_ID><DATE20131218><add PS Calibration>zenghaihui
+#define ALSPS_IOCTL_PS_CALI_START		_IOW(ALSPS, 0x17, int[2])
+#define ALSPS_IOCTL_PS_SET_CALI			_IOW(ALSPS, 0x18, int[2])
+#define ALSPS_IOCTL_PS_GET_CALI			_IOW(ALSPS, 0x19, int[2])
+#define ALSPS_IOCTL_PS_CLR_CALI			_IO(ALSPS, 0x1A)
+#define ALSPS_IOCTL_PS_CALI_RAW_DATA		_IOR(ALSPS, 0x1B, int)
+//LINE<JIRA_ID><DATE20140217><wallpaper check for ms color>zenghaihui
 #ifdef CONFIG_COMPAT
 #define COMPAT_ALSPS_SET_PS_MODE				_IOW(ALSPS, 0x01, compat_int_t)
 #define COMPAT_ALSPS_GET_PS_MODE				_IOR(ALSPS, 0x02, compat_int_t)

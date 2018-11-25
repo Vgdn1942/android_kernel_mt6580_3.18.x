@@ -5,10 +5,11 @@
 /plugin/;
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/interrupt-controller/irq.h>
-#include "mt6580-pinfunc.h"
+#include "P350-pinfunc.h"
 #include <dt-bindings/mmc/mt6580-msdc.h>
 #else
 #include "mt6580.dts"
+#include "P350-pinfunc.h"
 #endif
 
 /* chosen */
@@ -113,6 +114,7 @@
 		is_batch_supported_ps = <0>;
 		is_batch_supported_als = <0>;
 	};
+  /* end sensor */
 };
 
 /* mmc start */

@@ -55,6 +55,12 @@
 #ifdef CONFIG_COMPAT
 #define COMPAT_TPD_GET_FILTER_PARA _IOWR(TOUCH_IOC_MAGIC, 2, struct tpd_filter_t)
 #endif
+
+#ifdef CONFIG_PROJECT_V3702
+int tpd_fw_version = 0;
+char tpd_desc[50]={0};
+#endif
+
 struct tpd_filter_t tpd_filter;
 struct tpd_dts_info tpd_dts_data;
 EXPORT_SYMBOL(tpd_dts_data);
@@ -649,6 +655,11 @@ int tpd_driver_add(struct tpd_driver_t *tpd_drv)
 		tpd_driver_list[0].suspend = tpd_drv->suspend;
 		tpd_driver_list[0].resume = tpd_drv->resume;
 		tpd_driver_list[0].tpd_have_button = tpd_drv->tpd_have_button;
+#ifdef CONFIG_PROJECT_V3702
+		tpd_driver_list[0].tpd_get_fw_version = NULL;
+		tpd_driver_list[0].tpd_get_fw_vendor_name = NULL;
+		tpd_driver_list[0].tpd_ftm_force_update= NULL;
+#endif
 	return 0;
 }
 	for (i = 1; i < TP_DRV_MAX_COUNT; i++) {
@@ -660,6 +671,11 @@ int tpd_driver_add(struct tpd_driver_t *tpd_drv)
 			tpd_driver_list[i].resume = tpd_drv->resume;
 			tpd_driver_list[i].tpd_have_button = tpd_drv->tpd_have_button;
 			tpd_driver_list[i].attrs = tpd_drv->attrs;
+#ifdef CONFIG_PROJECT_V3702
+			tpd_driver_list[i].tpd_get_fw_version = tpd_drv->tpd_get_fw_version;
+			tpd_driver_list[i].tpd_get_fw_vendor_name = tpd_drv->tpd_get_fw_vendor_name;
+			tpd_driver_list[i].tpd_ftm_force_update= tpd_drv->tpd_ftm_force_update;
+#endif
 			break;
 		}
 		if (strcmp(tpd_driver_list[i].tpd_device_name, tpd_drv->tpd_device_name) == 0)
@@ -669,7 +685,6 @@ int tpd_driver_add(struct tpd_driver_t *tpd_drv)
 	return 0;
 }
 EXPORT_SYMBOL(tpd_driver_add);
-
 
 int tpd_device_init(void)
 {

@@ -29,4 +29,12 @@ extern int DW9714AF_SetI2Cclient(struct i2c_client *pstAF_I2Cclient, spinlock_t 
 extern long DW9714AF_Ioctl(struct file *a_pstFile, unsigned int a_u4Command, unsigned long a_u4Param);
 extern int DW9714AF_Release(struct inode *a_pstInode, struct file *a_pstFile);
 
+#define FM50AF_SetI2Cclient FM50AF_SetI2Cclient_Main
+#define FM50AF_Ioctl FM50AF_Ioctl_Main
+#define FM50AF_Release FM50AF_Release_Main
+extern int FM50AF_SetI2Cclient(struct i2c_client *pstAF_I2Cclient, spinlock_t *pAF_SpinLock, int *pAF_Opened);
+extern long FM50AF_Ioctl(struct file *a_pstFile, unsigned int a_u4Command, unsigned long a_u4Param);
+extern int FM50AF_Release(struct inode *a_pstInode, struct file *a_pstFile);
+
 #endif
+

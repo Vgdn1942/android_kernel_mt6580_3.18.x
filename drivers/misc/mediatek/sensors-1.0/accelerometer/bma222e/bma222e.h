@@ -13,8 +13,8 @@
  *
  */
 
-#ifndef BMA22_H
-#define BMA22_H
+#ifndef BMA222E_H
+#define BMA222E_H
 
 #include <linux/ioctl.h>
 

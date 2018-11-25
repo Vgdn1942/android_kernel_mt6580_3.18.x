@@ -24,8 +24,7 @@
 
 #include "lens_info.h"
 
-
-#define AF_DRVNAME "FM50AF_DRV"
+#define AF_DRVNAME "FM50AF"
 #define AF_I2C_SLAVE_ADDR        0x18
 
 #define AF_DEBUG
@@ -72,9 +71,22 @@ static int s4AF_ReadReg(unsigned short *a_pu2Result)
 static int s4AF_WriteReg(u16 a_u2Data)
 {
 	int i4RetValue = 0;
+#ifdef CONFIG_PROJECT_V3702
+
+	//char puSendCmd[2] = {(char)(a_u2Data >> 4) , (char)((a_u2Data & 0xF) << 4)};
+
+	//add by fangchsh for AF voice issue
+	int  a_u2Mode = 5; //linear a_u2Mode = 5
+	char puSendCmd[2] = {(char)(a_u2Data >> 4) , (char)(((a_u2Data & 0xF) << 4)+a_u2Mode)};
+
+
+	//LOG_INF("g_sr %d, write %d \n", g_sr, a_u2Data);
+	//g_pstAF_I2Cclient->ext_flag |= I2C_A_FILTER_MSG;
+#else
 
 	char puSendCmd[2] = { (char)(a_u2Data >> 4), (char)(((a_u2Data & 0xF) << 4) + g_SR) };
 
+#endif
 	g_pstAF_I2Cclient->addr = AF_I2C_SLAVE_ADDR;
 
 	g_pstAF_I2Cclient->addr = g_pstAF_I2Cclient->addr >> 1;
@@ -222,6 +234,16 @@ int FM50AF_Release(struct inode *a_pstInode, struct file *a_pstFile)
 {
 	LOG_INF("Start\n");
 
+#ifdef CONFIG_PROJECT_V3702
+	//add by fangchsh for AF voice issue
+        s4AF_WriteReg(300);	//when close camera, first backup to 300steps
+        msleep(15);        	//delay 15ms for lens stable(15ms or more time,ex 20ms 30ms)
+        s4AF_WriteReg(200);	//then backup to 200steps
+        msleep(15);		//delay 15ms
+        s4AF_WriteReg(100);	//then backup to 100 steps
+        msleep(15);		//delay 15ms
+#else
+
 	if (*g_pAF_Opened == 2) {
 		LOG_INF("Wait\n");
 		g_SR = 5;
@@ -230,7 +252,7 @@ int FM50AF_Release(struct inode *a_pstInode, struct file *a_pstFile)
 		s4AF_WriteReg(100);
 		msleep(20);
 	}
-
+#endif
 	if (*g_pAF_Opened) {
 		LOG_INF("Free\n");
 

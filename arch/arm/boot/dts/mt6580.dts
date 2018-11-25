@@ -13,7 +13,6 @@
 
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/interrupt-controller/irq.h>
-#include "mt6580-pinfunc.h"
 #include <dt-bindings/mmc/mt6580-msdc.h>
 #include <generated/autoconf.h>
 
@@ -64,7 +63,7 @@
 				reg = <0x11130000 0x10000/*MSDC1_BASE*/
 					0x10001e84 0x2>;/*FPGA PWR_GPIO,PWR_GPIO_EO*/
 				interrupts = <GIC_SPI 39 IRQ_TYPE_LEVEL_LOW>;
-				cd-gpios = <&pio 7 0>;
+				cd-gpios = <&pio 3 0>;
 				status = "disabled";
 				/* peter check when rainier ccf ready
 				clocks = <&perisys PERI_MSDC30_1>;
@@ -907,7 +906,7 @@
 			audclk-gpio = <26 0>;
 			audmiso-gpio = <28 0>;
 			audmosi-gpio = <27 0>;
-			extspkamp-gpio = <15 0>;
+			extspkamp-gpio = <83 0>;
 		};
 
 		mt_soc_ul1_PCM {
@@ -1270,9 +1269,7 @@
 			vcamaf-supply = <&mt_pmic_vcamaf_ldo_reg>;
 			vcamio-supply = <&mt_pmic_vcamio_ldo_reg>;
 			vgp3-supply = <&mt_pmic_vgp3_ldo_reg>;
-			vcamd_main2-supply = <&mt_pmic_vgp3_ldo_reg>;
-			vcamd_sub-supply = <&mt_pmic_vgp3_ldo_reg>;
-
+			vgp2-supply = <&mt_pmic_vgp2_ldo_reg>;
 		};
 		kd_camera_hw2:kd_camera_hw2@15008000 {
 			compatible = "mediatek,camera_hw2";
@@ -1327,11 +1324,17 @@
 		alsps:als_ps@0 {
 			compatible = "mediatek,als_ps";
 		};
+		alsps_sub:als_ps_sub@0 {
+			compatible = "mediatek,als_ps_sub";
+		};
 		m_acc_pl@0 {
 			compatible = "mediatek,m_acc_pl";
 		};
 		m_alsps_pl@0 {
 			compatible = "mediatek,m_alsps_pl";
+		};
+		m_alsps_sub_pl@0 {
+			compatible = "mediatek,m_alsps_sub_pl";
 		};
 		sensorHub@0 {
 			compatible = "mediatek,sensorHub";
@@ -1432,13 +1435,35 @@
 		als: als {
 			compatible = "mediatek, als-eint";
 		};
-
+		alssub: alssub {
+			compatible = "mediatek, alssub-eint";
+		};
 		mtkfb: mtkfb@0 {
 			compatible = "mediatek,mtkfb";
 		};
-
 		dsi_te: dsi_te {
 			compatible = "mediatek, dsi_te-eint";
+		};
+		tinno_hall: hall@0 {
+			compatible = "mediatek, hall";
+		};
+		mhall: mhall {
+			compatible = "mediatek, mhall-eint";
+		};
+		flash_light: flashlight@0 {
+			compatible = "mediatek,strobe_gpio_main";
+		};
+		flash_light_sub: flashlightsub@0 {
+			compatible = "mediatek,strobe_gpio_sub";
+		};
+		tinno_TGesture: TGesture@0 {
+			compatible = "mediatek,TGesture";
+		};
+	    leds: leds@0 {
+			compatible = "mediatek,leds_gpio";
+		};
+		dispte: dispte@0 {
+			compatible = "mediatek,DispTE_gpio";
 		};
 
 	};
@@ -1562,12 +1587,14 @@
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <3300000>;
 				regulator-enable-ramp-delay = <44>;
+				regulator-boot-on;
 			};
 			mt_pmic_vmch_ldo_reg: ldo_vmch {
 				regulator-name = "vmch";
 				regulator-min-microvolt = <3000000>;
 				regulator-max-microvolt = <3300000>;
 				regulator-enable-ramp-delay = <44>;
+				regulator-boot-on;
 			};
 			mt_pmic_vibr_ldo_reg: ldo_vibr {
 				regulator-name = "vibr";

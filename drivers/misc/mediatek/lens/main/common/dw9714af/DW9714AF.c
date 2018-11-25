@@ -71,9 +71,19 @@ static int s4AF_ReadReg(unsigned short *a_pu2Result)
 static int s4AF_WriteReg(u16 a_u2Data)
 {
 	int i4RetValue = 0;
+#ifdef CONFIG_PROJECT_V3702
+	//char puSendCmd[2] = {(char)(a_u2Data >> 4) , (char)((a_u2Data & 0xF) << 4)};
+	//add by fangchsh for AF voice issue
 
+	int  a_u2Mode = 5;	//linear a_u2Mode = 5
+	char puSendCmd[2] = {(char)(a_u2Data >> 4) , (char)(((a_u2Data & 0xF) << 4)+a_u2Mode)};
+
+	//LOG_INF("g_sr %d, write %d \n", g_sr, a_u2Data);
+	//g_pstAF_I2Cclient->ext_flag |= I2C_A_FILTER_MSG;
+#else
+*/
 	char puSendCmd[2] = { (char)(a_u2Data >> 4), (char)((a_u2Data & 0xF) << 4) };
-
+#endif
 	g_pstAF_I2Cclient->addr = AF_I2C_SLAVE_ADDR;
 
 	g_pstAF_I2Cclient->addr = g_pstAF_I2Cclient->addr >> 1;
@@ -114,6 +124,15 @@ static inline int moveAF(unsigned long a_u4Position)
 {
 	int ret = 0;
 
+#ifdef CONFIG_PROJECT_V3702
+	//dedine DLC mode ----raoxuezhen for V3702 HI842
+	int i4RetValue = 0;
+	char puSendCmd0[2] = {0xec,0xa3};
+	char puSendCmd1[2] = {0xa1,0x0e};	//DLC
+	char puSendCmd2[2] = {0xf2,0xC8};	//set tvib T_SRC
+	char puSendCmd3[2] = {0xdc,0x51};
+#endif
+
 	if ((a_u4Position > g_u4AF_MACRO) || (a_u4Position < g_u4AF_INF)) {
 		LOG_INF("out of range\n");
 		return -EINVAL;
@@ -123,6 +142,20 @@ static inline int moveAF(unsigned long a_u4Position)
 		unsigned short InitPos;
 
 		ret = s4AF_ReadReg(&InitPos);
+
+#ifdef CONFIG_PROJECT_V3702
+	//dedine DLC mode ----raoxuezhen for V3702 HI842
+	i4RetValue = i2c_master_send(g_pstAF_I2Cclient, puSendCmd0, 2);
+	//printk("i4RetValue=%d\n",i4RetValue);
+	i4RetValue = i2c_master_send(g_pstAF_I2Cclient, puSendCmd1, 2);
+	//printk("i4RetValue=%d\n",i4RetValue);
+	i4RetValue = i2c_master_send(g_pstAF_I2Cclient, puSendCmd2, 2);
+	//printk("i4RetValue=%d\n",i4RetValue);
+	i4RetValue = i2c_master_send(g_pstAF_I2Cclient, puSendCmd3, 2);
+	//printk("i4RetValue=%d\n",i4RetValue);
+	
+	//printk("the mode of the DLC is setting down\n");
+#endif
 
 		if (ret == 0) {
 			LOG_INF("Init Pos %6d\n", InitPos);
@@ -220,11 +253,22 @@ int DW9714AF_Release(struct inode *a_pstInode, struct file *a_pstFile)
 {
 	LOG_INF("Start\n");
 
+#ifdef CONFIG_PROJECT_V3702
+
+        //add by fangchsh for AF voice issue
+        s4AF_WriteReg(300);	//when close camera, first backup to 300steps
+        msleep(15);        	//delay 15ms for lens stable(15ms or more time,ex 20ms 30ms)
+        s4AF_WriteReg(200);	//then backup to 200steps
+        msleep(15);					//delay 15ms
+        s4AF_WriteReg(100);	//then backup to 100 steps
+        msleep(15);					//delay 15ms
+#else
+
 	if (*g_pAF_Opened == 2) {
 		LOG_INF("Wait\n");
 		s4AF_WriteReg(0x80); /* Power down mode */
 	}
-
+#endif
 	if (*g_pAF_Opened) {
 		LOG_INF("Free\n");
 

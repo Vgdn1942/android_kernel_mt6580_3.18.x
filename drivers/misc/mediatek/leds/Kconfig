@@ -7,6 +7,9 @@ config MTK_LEDS
 	  If unsure, say N.
 	  Mediatek LED module includes backlight, indicate LED, keypad LED, button LED etc.
 
+config MTK_LEDS_GPIO
+	bool "MediaTek LED GPIO Support"
+
 config LIGHTNESS_MAPPING_VALUE
 	int "LIGHTNESS_MAPPING_VALUE"
 	default 255

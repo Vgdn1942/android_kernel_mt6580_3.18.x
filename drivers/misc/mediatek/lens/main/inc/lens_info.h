@@ -25,6 +25,7 @@
 /* AFDRV_XXXX be the same as AF_DRVNAME in (*af).c */
 #define AFDRV_BU6424AF "BU6424AF"
 #define AFDRV_DW9714AF "DW9714AF"
+#define AFDRV_FM50AF   "FM50AF"
 
 /* Structures */
 struct stAF_MotorInfo {
